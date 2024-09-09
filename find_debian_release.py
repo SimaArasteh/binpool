@@ -104,8 +104,12 @@ def main():
     source_url = crawl_webpage(pack_url_page)
     final_url = create_link(source_url)
     debian_release = find_debian_release(final_url)
-    print(debian_release)
-    print(source_url)
+    print(f"Debian Release: {debian_release}")
+    print("-" * 50)
+    print("Use this URl to download the package")
+    print(f"Source URL: {source_url}")
+    print("-" * 50)
+
 
 if __name__ == "__main__":
     main()

@@ -168,4 +168,25 @@ dpkg-deb -x <package_name>.deb <output_directory>
 
 2. quilt may sometimes have a bug. It sometimes gives error to apply the patch and in this case I just choose another option
 
-3. If you cannot build a package do not spend much time on it. Try to choose those that you really can build. 
+3. If you cannot build a package do not spend much time on it. Try to choose those that you can build faster. 
+
+# Dataset Structure
+
+the structure of the dataset should follow the below pattern. 
+
+```
+CVE-ID/
+│
+├── vulnerable/                # Directory containing vulnerable versions
+│   ├── opt0/                  # optimization level 0 for vulnerable version
+│   ├── opt1/                  # optimization level 1 for vulnerable version
+│   ├── opt2/                  # optimization level 2 for vulnerable version
+│   └── opt3/                  # optimization level 3 for vulnerable version
+│
+└── patch/                     # Directory containing patched versions
+    ├── opt0/                  # optimization level 0 for patched version
+    ├── opt1/                  # optimization level 1 for patched version
+    ├── opt2/                  # optimization level 2 for patched version
+    └── opt3/                  # optimization level 3 for patched version
+
+```
