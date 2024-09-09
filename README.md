@@ -40,6 +40,24 @@ For each CVE in the link above, grab the corresponding fix version. This is the 
 1. After finding the Debian package, visit the Debian snapshot site (https://snapshot.debian.org/). On the left sidebar, under the "Packages" section, select "Source Packages" and enter only the source name of the package (for example, for the package `tigervnc_1.7.0-2`, just type `tigervnc`). This will display all available versions of the package. Select the desired version, such as `1.7.0-2` in this case.On the version page, you will find both the source files and binary packages. Thanks to the Debian community, all source packages are pre-built and available for download. The binaries contain only patched functions. Since we need to build both the vulnerable and patched versions, and compile binaries with different optimization levels, we will need to download the source files for this purpose.Under source files section, right click on ```package_version.dsc``` and copy the link address. We also provide you an autmated script to find this source link. 
 
 
-2. **The most important and challenging part of debian packages is to find the right debian version to build the debian package inside.** We provide an automated script to find a right debian version for each package. 
+2. **The most important and challenging part of debian packages is to find the right debian version to build the debian package.**. We provide an automated script to find a right debian version for each package. Having a right debian version is neccessary to guarantee  the installation of debian dependencies. 
 
-3. 
+3. Now it is time to install the right version of debian. You can install it using virtual machines but we prefer to install it using ```debootstrap```. debootstrap is a tool used to create a minimal Debian-based (or Ubuntu-based) system installation within a directory. It is typically used to bootstrap a new Debian system by downloading essential packages, installing them, and setting up the directory structure needed for a basic system. Follow the following commands. First install deboostrap. 
+
+```bash
+sudo apt-get update
+sudo apt-get install debootstrap
+sudo mkdir /mnt/debian # make a directory to install the debian inside it.
+```
+
+Now install the debian using debootstrap. Imagine that we want to install debian 10 or (buster) in directory /mnt/debian10. 
+
+```bash
+sudo debootstrap --arch amd64 buster /mnt/debian http://deb.debian.org/debian
+sudo chroot /mnt/debian
+
+```
+
+chroot changes the apparent root directory for a process, isolating it from the rest of the system by making it operate within a specified directory as if it were the root (/).
+
+4. You are now inside the debian you just installed. It is now time to install the debian package.
