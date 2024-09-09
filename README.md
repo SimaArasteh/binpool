@@ -60,4 +60,98 @@ sudo chroot /mnt/debian
 
 chroot changes the apparent root directory for a process, isolating it from the rest of the system by making it operate within a specified directory as if it were the root (/).
 
-4. You are now inside the debian you just installed. It is now time to install the debian package.
+4. You are now inside the debian you just installed. It is now time to install the debian package. Run the following commands. 
+
+```
+apt-get update
+apt-get install -y --force-yes build-essential fakeroot devscripts packaging-dev
+```
+Now make a directory for the vulnerable version of the package. 
+
+```
+mkdir vulnerable
+cd vulnerable
+```
+
+Now download the source file you just obtained from the first step by running find_debian_version.py. Run the following command.
+
+```
+dget -u --insecure source_file_url
+```
+
+As an example, it can be like ```dget -u --insecure https://snapshot.debian.org/archive/debian-debug/20161230T030620Z/pool/main/t/tigervnc/tigervnc_1.7.0-2.dsc```.
+
+Now you have downloaded the package in directory vulnerable. **Inside every debian package, there is a directory called /debian/patches/. This directory contains all patches applied into this package. As an example for ```tigervnc_1.10.1%2Bdfsg-4```, you can see this list of patches. 
+
+
+<img src="images/tigervnc.png" alt="Project Logo" width="1000"/>
+
+If you open the series file, you will see the list of patches. The Debian community provides an awesome tool named ```quilt``` to apply or remove patches from source code. Quilt uses a file called series to track the list of patches and their order. The patches are applied one after another in the order they are listed in the ```debian/patches/series``` file. The command ```quilt push``` will apply the patch and ```quilt pop``` will remove the patch. In order to find out the applied patches run 
+
+```
+quilt applied
+```
+
+Then you can remove the patch that fix the CVE by using the following command.
+
+```
+quilt pop CVE-2014-8240-849479.patch
+```
+You can also revert all patches by using 
+
+```
+quilt pop -a
+```
+
+Now it is time to build package dependencies. Thanks to debian community, you can build all dependencies by using following command.It will use debian/rules to build the package.
+
+```
+apt build-dep .
+```
+It is neccessary that this phase should be successfully done.  
+
+You can now install the package for different optimization levels. We build the packages with debug information(dwarf).
+
+```
+#optimization level 0
+yes '' | DEB_BUILD_OPTIONS='nostrip noopt debug' dpkg-buildpackage -b -uc -us
+```
+
+```
+#optimization level 1
+export CFLAGS="-O1"
+export CXXFLAGS="-O1"
+export FFLAGS="-O1"
+export DEB_BUILD_OPTIONS="nostrip debug"
+debuild -us -uc
+```
+```
+#optimization level 2
+export CFLAGS="-O2"
+export CXXFLAGS="-O2"
+export FFLAGS="-O2"
+export DEB_BUILD_OPTIONS="nostrip debug"
+debuild -us -uc
+```
+
+```
+#optimization level 3
+export CFLAGS="-O3"
+export CXXFLAGS="-O3"
+export FFLAGS="-O3"
+export DEB_BUILD_OPTIONS="nostrip debug"
+debuild -us -uc
+```
+
+For patch version, just apply the patch using following command. 
+
+```
+quilt push file.patch
+```
+to apply all patches run. 
+
+```
+quilt push -a
+```
+and then build dependencies and the package using above commands.
+
