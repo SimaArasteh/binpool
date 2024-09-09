@@ -32,3 +32,14 @@ You can download the dataset from .
 
 If you want to build BinPool, follow these steps. 
 
+We built BinPool by integrating debian snapshot , NVD and debian security tracker. You can access the link of binpool
+records from https://docs.google.com/spreadsheets/d/1qztIwB8xJ10H-2HLX15vI29Ze7yFDOrv7kDQ4JUi1g8/edit?usp=sharing. 
+
+For each CVE in the link above, grab the corresponding fix version. This is the version of the package that fix this CVE. For each CVE, there are more than one fix version but you can try to grab anyone. Note that usually if the version is higher, it is more likely to get built. 
+
+1. After finding the Debian package, visit the Debian snapshot site (https://snapshot.debian.org/). On the left sidebar, under the "Packages" section, select "Source Packages" and enter only the source name of the package (for example, for the package `tigervnc_1.7.0-2`, just type `tigervnc`). This will display all available versions of the package. Select the desired version, such as `1.7.0-2` in this case.On the version page, you will find both the source files and binary packages. Thanks to the Debian community, all source packages are pre-built and available for download. The binaries contain only patched functions. Since we need to build both the vulnerable and patched versions, and compile binaries with different optimization levels, we will need to download the source files for this purpose.Under source files section, right click on ```package_version.dsc``` and copy the link address. We also provide you an autmated script to find this source link. 
+
+
+2. **The most important and challenging part of debian packages is to find the right debian version to build the debian package inside.** We provide an automated script to find a right debian version for each package. 
+
+3. 
