@@ -1,8 +1,8 @@
 # BinPool
 
-
+<p align="center">
 <img src="images/binpool.png" alt="Project Logo" width="300"/>
-
+</p>
 ## Table of Contents
 - [Introduction](#introduction)
 - [Features](#features)
