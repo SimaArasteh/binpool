@@ -27,6 +27,7 @@ You can download the dataset from .
 - For each CVE, it provides the fix version of the debian package. 
 - It provides the primary programming language (C, C++, java, python)
 - It provides function names exits in the patch and corresponding line numbers.
+- It provides memory offsets inside binary the involve in the patch
 
 ## Installation
 
@@ -159,3 +160,12 @@ and then build dependencies and the package using above commands. If this step g
 dpkg-deb -x <package_name>.deb <output_directory>
 ```
 5. Now run the ```binpool_info.py``` script. This script will give you some information such as function names, the bin file contain the vulnerable function, file names involve in the patch and all lines that contain the patch. 
+
+
+# Trouble Shooting
+
+1. Please remember that building these packages is not an easy task. You may encounter so many technical issues. I recommend to always choose the higher version as a fix version. 
+
+2. quilt may sometimes have a bug. It sometimes gives error to apply the patch and in this case I just choose another option
+
+3. If you cannot build a package do not spend much time on it. Try to choose those that you really can build. 
