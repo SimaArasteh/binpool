@@ -84,7 +84,7 @@ As an example, it can be like ```dget -u --insecure https://snapshot.debian.org/
 Now you have downloaded the package in directory vulnerable. **Inside every debian package, there is a directory called /debian/patches/. This directory contains all patches applied into this package. As an example for ```tigervnc_1.10.1%2Bdfsg-4```, you can see this list of patches. 
 
 
-<img src="images/tigervnc.png" alt="Project Logo" width="1000"/>
+<img src="images/tigervnc.png"  width="1000"/>
 
 If you open the series file, you will see the list of patches. The Debian community provides an awesome tool named ```quilt``` to apply or remove patches from source code. Quilt uses a file called series to track the list of patches and their order. The patches are applied one after another in the order they are listed in the ```debian/patches/series``` file. The command ```quilt push``` will apply the patch and ```quilt pop``` will remove the patch. In order to find out the applied patches run 
 
@@ -153,5 +153,9 @@ to apply all patches run.
 ```
 quilt push -a
 ```
-and then build dependencies and the package using above commands.
+and then build dependencies and the package using above commands. If this step goes through successfully, then the deb files are created. To extract the binaries from debian files, run the following command for each deb package. 
 
+```
+dpkg-deb -x <package_name>.deb <output_directory>
+```
+5. Now run the ```binpool_info.py``` script. This script will give you some information such as function names, the bin file contain the vulnerable function, file names involve in the patch and all lines that contain the patch. 
