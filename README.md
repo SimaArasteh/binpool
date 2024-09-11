@@ -190,3 +190,15 @@ CVE-ID/
     └── opt3/                  # optimization level 3 for patched version
 
 ```
+
+# Tasks 
+
+I chose CVEs randomly from remaining CVEs and splited them betwen us. In order to find out what CVEs you have to build, please follow the step below. 
+
+load the file with your name in the tasks directory using the following code.
+
+```
+import joblib
+
+sima_tasks = joblib.load('tasks/sima.pkl') # to load CVEs sima has to compile
+```
