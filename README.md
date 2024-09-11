@@ -93,6 +93,8 @@ If you open the series file, you will see the list of patches. The Debian commun
 quilt applied
 ```
 
+To know more about quilt please refer to https://raphaelhertzog.com/2012/08/08/how-to-use-quilt-to-manage-patches-in-debian-packages/.
+
 Then you can remove the patch that fix the CVE by using the following command.
 
 ```
