@@ -126,7 +126,7 @@ export CFLAGS="-O1"
 export CXXFLAGS="-O1"
 export FFLAGS="-O1"
 export DEB_BUILD_OPTIONS="nostrip debug"
-debuild -us -uc
+dpkg-buildpackage -b -uc -us
 ```
 ```
 #optimization level 2
@@ -134,7 +134,7 @@ export CFLAGS="-O2"
 export CXXFLAGS="-O2"
 export FFLAGS="-O2"
 export DEB_BUILD_OPTIONS="nostrip debug"
-debuild -us -uc
+dpkg-buildpackage -b -uc -us
 ```
 
 ```
@@ -143,7 +143,7 @@ export CFLAGS="-O3"
 export CXXFLAGS="-O3"
 export FFLAGS="-O3"
 export DEB_BUILD_OPTIONS="nostrip debug"
-debuild -us -uc
+dpkg-buildpackage -b -uc -us
 ```
 
 For patch version, just apply the patch using following command. 
@@ -204,3 +204,5 @@ import joblib
 
 sima_tasks = joblib.load('tasks/sima.pkl') # to load CVEs sima has to compile
 ```
+
+Please remember that in the file https://docs.google.com/spreadsheets/d/1qztIwB8xJ10H-2HLX15vI29Ze7yFDOrv7kDQ4JUi1g8/edit?usp=sharing, the green records are those that I have built. I exclude them from the rests and then assigned the remaining CVEs. Please mark the records in the sheet when you build it. 
