@@ -4,6 +4,10 @@ import argparse
 import os
 import sys
 import re
+import clang.cindex
+import os
+clang.cindex.Config.set_library_file('/mnt/debian11/usr/lib/llvm-11/lib/libclang.so.1')
+index = clang.cindex.Index.create()
 def parse_patch_file(patch_file):
     files_info = {}
     with open(patch_file, 'r') as file:
@@ -52,21 +56,33 @@ def extract_function_info(lis , file_info, status, path_to_patch):
             diff_lines = modifided_lines[l]
             func_name = find_function(git_line)
             changed_lines = find_patch_lines(git_line)
+            print(func_name)
+            print(changed_lines)
             target_line = None
+            lines = []
             if status == "v":
                 for l in diff_lines:
-                    if l.startswith('-') and target_line is None:
-                        target_line = l[1:]
+                    if not l.startswith('+') and '@' not in l:
+                        if l.startswith('-'):
+                            l = l[1:]
+                        
+                        lines.append(l.strip())
             else:
                 for j in diff_lines:
-                    if j.startswith('+') and target_line is None:
-                        target_line = l[1:]
-            print(path_to_patch)
+                    if not j.startswith('-') and '@' not in l:
+                        if j.startswith('+'):
+                            j = j[1:]
+                        lines.append(j.strip())
+
+            #print(path_to_patch)
             path_for_cfile = find_cfile_path(path_to_patch, f_name)
-            print(target_line)
-            print(path_for_cfile)
-            extracted_function , extracted_line_num = explore_for_function(path_for_cfile, target_line)
-            print(extracted_function)
+            print(lines)
+            #print(target_line)
+            #print(path_for_cfile)
+            function_name = find_function_containing_diff(path_for_cfile, lines)
+
+            #extracted_function , extracted_line_num = explore_for_function(path_for_cfile, target_line)
+            #print(extracted_function)
 
 
 
@@ -98,6 +114,49 @@ def find_path_in_directory(directory, partial_path):
             # Check if the partial path matches the end of the full path
             if full_file_path.endswith(partial_path):
                 return full_file_path
+    return None
+
+def get_function_code_and_ranges(filepath):
+    """Parse the C/C++ file and return a list of functions with their code content and start/end line numbers."""
+    translation_unit = index.parse(filepath)
+    functions = []
+
+    def extract_function_code(node):
+        # If the node is a function, get the name and code content
+        if node.kind == clang.cindex.CursorKind.FUNCTION_DECL:
+            start_line = node.extent.start.line
+            end_line = node.extent.end.line
+
+            # Extract the code from the file for this function
+            with open(filepath, 'r') as file:
+                code_lines = file.readlines()[start_line - 1:end_line]
+
+            functions.append((node.spelling, start_line, end_line, code_lines))
+
+        # Recurse through the children of the node
+        for child in node.get_children():
+            extract_function_code(child)
+
+    # Start from the root node (translation unit)
+    extract_function_code(translation_unit.cursor)
+    return functions
+
+def match_diff_lines_with_function(function_code, diff_lines):
+    """Check if all diff lines are contained within the function's code."""
+    function_code_str = ''.join([line.strip() for line in function_code])
+    diff_lines_str = ''.join([line.strip() for line in diff_lines])
+
+    # Check if the concatenated diff lines exist in the function's code
+    return diff_lines_str in function_code_str
+
+def find_function_containing_diff(filepath, diff_lines):
+    """Find which function contains all the lines from the diff."""
+
+    functions = get_function_code_and_ranges(filepath)
+    
+    for func_name, start_line, end_line, function_code in functions:
+        if match_diff_lines_with_function(function_code, diff_lines):
+            return func_name
     return None
 
 def find_lines_for_diff(patch_lines, g_lines):
@@ -144,7 +203,7 @@ def explore_for_function(file_path,target_line):
     # It is also good to check the changed lines because sometimes
     # after removing the patch using quilt, lines do not
     # match with the lines in the git diff
-    breakpoint()
+    #breakpoint()
     # Regular expression to match a function declaration/definition
     function_pattern = re.compile(r'^\s*(\w[\w\s*&<>]*)\s+(\w+)\s*\(([^)]*)\)\s*\{')
     
