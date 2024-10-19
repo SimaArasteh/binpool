@@ -156,21 +156,7 @@ to apply all patches run.
 ```
 quilt push -a
 ```
-and then build dependencies and the package using above commands. If this step goes through successfully, then the deb files are created. To extract the binaries from debian files, run the following command for each deb package. 
-
-```
-dpkg-deb -x <package_name>.deb <output_directory>
-```
-5. Now run the ```binpool_info.py``` script. This script will give you some information such as function names, the bin file contain the vulnerable function, file names involve in the patch and all lines that contain the patch. 
-
-
-# Trouble Shooting
-
-1. Please remember that building these packages is not an easy task. You may encounter so many technical issues. I recommend to always choose the higher version as a fix version. 
-
-2. quilt may sometimes have a bug. It sometimes gives error to apply the patch and in this case I just choose another option
-
-3. If you cannot build a package do not spend much time on it. Try to choose those that you can build faster. 
+and then build dependencies and the package using above commands. If this step goes through successfully, then the deb files are created. for dataset, please follow the below structure.
 
 # Dataset Structure
 
@@ -192,6 +178,25 @@ CVE-ID/
     └── opt3/                  # optimization level 3 for patched version
 
 ```
+
+# extract deb files
+
+After putting deb files into their directories based on the above structure, it is now time to extract deb files into binaries. In order to do that, run extract_deb_files.py with the directory to CVE-ID directory. 
+
+```
+python3 extract_deb_files.py "path to CVE directory"
+```
+
+
+# Trouble Shooting
+
+1. Please remember that building these packages is not an easy task. You may encounter so many technical issues. I recommend to always choose the higher version as a fix version. 
+
+2. quilt may sometimes have a bug. It sometimes gives error to apply the patch and in this case I just choose another option
+
+3. If you cannot build a package do not spend much time on it. Try to choose those that you can build faster. 
+
+
 
 # Tasks 
 
