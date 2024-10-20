@@ -186,7 +186,11 @@ After putting deb files into their directories based on the above structure, it 
 ```
 python3 extract_deb_files.py "path to CVE directory"
 ```
+after extraction, you should have a structure as an example below. 
 
+<p >
+<img src="images/extracted.png" alt="Project Logo" width="300"/>
+</p>
 
 # Trouble Shooting
 
