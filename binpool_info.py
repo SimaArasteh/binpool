@@ -5,8 +5,9 @@ import os
 import sys
 import re
 import clang.cindex
+from clang import cindex
 import os
-clang.cindex.Config.set_library_file('/mnt/debian11/usr/lib/llvm-11/lib/libclang.so.1')
+#clang.cindex.Config.set_library_file('/mnt/debian11/usr/lib/llvm-11/lib/libclang.so.1')
 index = clang.cindex.Index.create()
 def parse_patch_file(patch_file):
     files_info = {}
@@ -56,30 +57,34 @@ def extract_function_info(lis , file_info, status, path_to_patch):
             diff_lines = modifided_lines[l]
             func_name = find_function(git_line)
             changed_lines = find_patch_lines(git_line)
-            print(func_name)
-            print(changed_lines)
+            #print(func_name)
+            #print(changed_lines)
             target_line = None
             lines = []
             if status == "v":
-                for l in diff_lines:
-                    if not l.startswith('+') and '@' not in l:
-                        if l.startswith('-'):
-                            l = l[1:]
-                        
-                        lines.append(l.strip())
+                for li in diff_lines:
+                    if not li.startswith('+') and '@' not in li:
+                        if li.startswith('-'):
+                            li = li[1:]
+                        if li.strip() != '':
+                            lines.append(li.strip())
             else:
                 for j in diff_lines:
-                    if not j.startswith('-') and '@' not in l:
+                    if not j.startswith('-') and '@' not in j:
                         if j.startswith('+'):
                             j = j[1:]
-                        lines.append(j.strip())
+                        if j.strip() != '':
+                            lines.append(j.strip())
 
             #print(path_to_patch)
+            #breakpoint()
             path_for_cfile = find_cfile_path(path_to_patch, f_name)
-            print(lines)
+            #print(lines)
             #print(target_line)
             #print(path_for_cfile)
             function_name = find_function_containing_diff(path_for_cfile, lines)
+            print("here is a function name")
+            print(function_name)
 
             #extracted_function , extracted_line_num = explore_for_function(path_for_cfile, target_line)
             #print(extracted_function)
@@ -88,7 +93,10 @@ def extract_function_info(lis , file_info, status, path_to_patch):
 
 def find_cfile_path (patch_path, file_name):
     # Find the position of "/debian/patches"
-    
+    #breakpoint()
+    if os.path.exists(file_name):
+        print("yes")
+        return file_name
     path_parts = file_name.split(os.sep)
     last_two = os.path.join(path_parts[-2], path_parts[-1])
     
@@ -97,7 +105,8 @@ def find_cfile_path (patch_path, file_name):
 
     # Extract everything before "/debian/patches"
     if index != -1:
-        extracted_path = patch_path[:index]
+        #extracted_path = patch_path[:index]
+        extracted_path = patch_path.split("/")[0]+"/src/"
         full_path = find_path_in_directory(extracted_path, last_two)
         
         return full_path
@@ -124,14 +133,25 @@ def get_function_code_and_ranges(filepath):
     def extract_function_code(node):
         # If the node is a function, get the name and code content
         if node.kind == clang.cindex.CursorKind.FUNCTION_DECL:
+            # Clang gives us the function declaration, but we want the body (between { and })
             start_line = node.extent.start.line
-            end_line = node.extent.end.line
+            body_start = None
+            body_end = None
 
-            # Extract the code from the file for this function
-            with open(filepath, 'r') as file:
-                code_lines = file.readlines()[start_line - 1:end_line]
+            # Find the first occurrence of the function body
+            for child in node.get_children():
+                if child.kind == clang.cindex.CursorKind.COMPOUND_STMT:
+                    #breakpoint()
+                    body_start = child.extent.start.line
+                    body_end = child.extent.end.line
+                    break
 
-            functions.append((node.spelling, start_line, end_line, code_lines))
+            if body_start and body_end:
+                # Extract the code for the function's body (from body_start to body_end)
+                with open(filepath, 'r') as file:
+                    code_lines = file.readlines()[body_start - 1:body_end]
+
+                functions.append((node.spelling, body_start, body_end, code_lines))
 
         # Recurse through the children of the node
         for child in node.get_children():
@@ -139,22 +159,35 @@ def get_function_code_and_ranges(filepath):
 
     # Start from the root node (translation unit)
     extract_function_code(translation_unit.cursor)
+    for func in functions:
+        if func[0] == "opj_j2k_write_mco":
+            print("this is me")
+            print((func[1], func[2]))
     return functions
 
 def match_diff_lines_with_function(function_code, diff_lines):
-    """Check if all diff lines are contained within the function's code."""
+    """Check if all diff lines are contained within the function's body."""
+    #breakpoint()
     function_code_str = ''.join([line.strip() for line in function_code])
-    diff_lines_str = ''.join([line.strip() for line in diff_lines])
+    #diff_lines_str = ''.join([line.strip() for line in diff_lines])
+    flag = True
+    for l in diff_lines:
+        #if l != '':
+        if l in function_code_str:
+            continue
+        else:
+            flag = False
 
-    # Check if the concatenated diff lines exist in the function's code
-    return diff_lines_str in function_code_str
+    return flag
+    
+
 
 def find_function_containing_diff(filepath, diff_lines):
     """Find which function contains all the lines from the diff."""
-
     functions = get_function_code_and_ranges(filepath)
     
-    for func_name, start_line, end_line, function_code in functions:
+    for func_name, body_start, body_end, function_code in functions:
+        
         if match_diff_lines_with_function(function_code, diff_lines):
             return func_name
     return None
