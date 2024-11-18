@@ -2,6 +2,7 @@
 import argparse
 import os
 import re
+import shutil
 from collections import defaultdict
 def extract_paths_to_directory(directory_path):
     unique_names = set()
@@ -60,7 +61,7 @@ def extract_structure_based_cves (deb_filenames):
     
     patch_pack = defaultdict(set)
     for cve in unique_cves:
-        cve_package[cve] = [set(), set(), set()]
+        cve_package[cve] = [set(), set(), set(), ""]
         for name in deb_filenames:
             parts = name.split("_")
             pack_name = parts[0]
@@ -70,6 +71,7 @@ def extract_structure_based_cves (deb_filenames):
                 cve_package[cve][0].add(pack_name)
                 cve_package[cve][1].add(opt_level)
                 cve_package[cve][2].add(opt_level)
+                cve_package[cve][3] = name
             
                 
     return cve_package
@@ -130,6 +132,28 @@ if __name__ == "__main__":
     args = parser.parse_args()
     unique_names, names, full_names , paths= extract_paths_to_directory(args.path)
     all_cves, pack_structure = extract_structure(unique_names, names)
+    
     cve_dump = extract_structure_based_cves(full_names)
     #create_directories_cves(cve_dump)
+    
+    '''for cve in cve_dump:
+        
+        print(cve)
+        pack_names = cve_dump[cve][0]
+        for pack in pack_names:
+            for opt in ['opt1', 'opt2', 'opt3']:
+                #print(pack+"_None_"+opt)
+                #print(pack+"_"+cve+"_"+opt)
+                for path in paths:
+                    if pack in path and '_None_' in path and opt in path:
+                        destination_directory = "CVE_Directories/"+cve+"/patch/"+opt+"/"
+                        shutil.copy(path, destination_directory)
+                    elif pack in path and cve in path and opt in path:
+                        destination_directory = "CVE_Directories/"+cve+"/vulnerable/"+opt+"/"
+                        shutil.copy(path, destination_directory)'''
+
+        
+
+    
+            
     
