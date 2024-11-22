@@ -5,6 +5,7 @@ import re
 import clang.cindex
 from clang import cindex
 import tempfile
+from clang.cindex import CursorKind
 index = clang.cindex.Index.create()
 def parse_patch_file(patch_file):
     files_info = {}
@@ -14,7 +15,7 @@ def parse_patch_file(patch_file):
         for idx in range(len(lines)):
             line = lines[idx]
             line = line.strip()
-            if (line.startswith('+++') and line.endswith('.c')) or (line.startswith('+++') and line.endswith('.cpp')) or (line.startswith('+++') and line.endswith('.go'))  or (line.startswith('+++') and line.endswith('.py'))  or (line.startswith('+++') and line.endswith('.java')) :
+            if line.startswith('+++'):
                 file_indexes.append(idx)
 
         jdx = 0
@@ -91,7 +92,12 @@ def find_cfile_path (patch_path, file_name):
 
 def extract_func_name(git_line):
     if "(" in git_line:
-        return git_line.split("(")[0].split(" ")[-1]
+        before_paranthes = git_line.split("(")[0]
+        parts_paran = before_paranthes.split()
+        if parts_paran[-1] != "":
+            return parts_paran[-1]
+        else:
+            return parts_paran[-2]
     return None
 
 
@@ -158,45 +164,55 @@ def find_function_containing_diff(filepath, diff_lines):
             return func_name
     return None
 
+def find_function_containing_diff_extra(filepath, l_khonsa, l_pos, l_neg):
+    """Find which function contains all the lines from the diff."""
+    breakpoint()
+    functions = get_function_code_and_ranges(filepath)
+    
+    for func_name, body_start, body_end, function_code in functions:
+        
+        result = match_diff_lines_with_function_extra(function_code, l_khonsa, l_pos, l_neg)
+        if result :
+            return func_name
+    return None
+
 def get_function_code_and_ranges(filepath):
-    """Parse the C/C++ file and return a list of functions with their code content and start/end line numbers."""
-    #breakpoint()
+    """
+    Parse the C/C++ file and return a list of functions with their code content and start/end line numbers.
+
+    Parameters:
+        filepath (str): Path to the C/C++ source file.
+
+    Returns:
+        list of tuple: A list of tuples, where each tuple contains the function name, start line, end line,
+                       and the code lines as a list of strings.
+    """
+    # Initialize Clang index
+    breakpoint()
     translation_unit = index.parse(filepath)
     functions = []
 
-    def extract_function_code(node):
-        # If the node is a function, get the name and code content
-        if node.kind == clang.cindex.CursorKind.FUNCTION_DECL:
-            # Clang gives us the function declaration, but we want the body (between { and })
+    # Stack for non-recursive traversal
+    stack = [translation_unit.cursor]
+
+    while stack:
+        node = stack.pop()
+
+        # Only process function declarations that have a body
+        if node.kind == CursorKind.FUNCTION_DECL and node.is_definition():
+            function_name = node.spelling
             start_line = node.extent.start.line
-            body_start = None
-            body_end = None
+            end_line = node.extent.end.line
 
-            # Find the first occurrence of the function body
-            for child in node.get_children():
-                if child.kind == clang.cindex.CursorKind.COMPOUND_STMT:
-                    #breakpoint()
-                    body_start = child.extent.start.line
-                    body_end = child.extent.end.line
-                    break
+            # Extract the function's code
+            with open(filepath, 'r') as file:
+                code_lines = file.readlines()[start_line - 1:end_line]
 
-            if body_start and body_end:
-                # Extract the code for the function's body (from body_start to body_end)
-                with open(filepath, 'r') as file:
-                    code_lines = file.readlines()[body_start - 1:body_end]
+            functions.append((function_name, start_line, end_line, ''.join(code_lines)))
 
-                functions.append((node.spelling, body_start, body_end, code_lines))
+        # Add children to the stack
+        stack.extend(node.get_children())
 
-        # Recurse through the children of the node
-        for child in node.get_children():
-            extract_function_code(child)
-
-    # Start from the root node (translation unit)
-    extract_function_code(translation_unit.cursor)
-    '''for func in functions:
-        if func[0] == "opj_j2k_write_mco":
-            print("this is me")
-            print((func[1], func[2]))'''
     return functions
     
 def match_diff_lines_with_function(function_code, diff_lines):
@@ -216,14 +232,53 @@ def match_diff_lines_with_function(function_code, diff_lines):
     else:
         return False
 
+def match_diff_lines_with_function_extra(function_code, diff_lines_khonsa, diff_lines_pos, diff_lines_neg):
+    #breakpoint()
+    function_code_str = ''.join([line.strip() for line in function_code])
+    flag_khonsa = True
+    flag_pos = True
+    flag_neg = True
+    if len(diff_lines_khonsa):
+        for line in diff_lines_khonsa:
+            if line not in function_code_str:
+                flag_khonsa = False
+                return flag_khonsa
+        return flag_khonsa
+    else:
+        if len(diff_lines_pos):
+            if diff_lines_pos[0] in function_code_str:
+                for l in diff_lines_pos:
+                    if l not in function_code_str:
+                        flag_pos = False
+                        return flag_pos
+                return flag_pos
+        if len(diff_lines_neg):
+            if diff_lines_neg[0] in function_code_str:
+                for s in diff_lines_neg:
+                    if s not in function_code_str:
+                        flag_neg = False
+                        return flag_neg
+                return flag_neg
+
+
+
     
 def extract_function_info(lis , file_info, status, path_to_patch):
     #breakpoint()
     files_funcs = {}
     unique_funcs = set()
+    modules = set()
     for file_idx in file_info:
         file_name = lis[file_idx]
-        f_name = file_name.split(" ")[-1].strip()
+        file_parts = file_name.split()
+        print(file_parts)
+        if len(file_parts) == 2:
+            f_name = file_parts[-1].strip()
+        if len(file_parts) > 2:
+            f_name = file_parts[1].strip()
+
+
+        #f_name = file_name.split(" ")[-1].strip()
         git_lines = file_info[file_idx]
         modifided_lines = find_lines_for_diff(lis, git_lines)
         for l in git_lines:
@@ -257,9 +312,9 @@ def extract_function_info(lis , file_info, status, path_to_patch):
             
             #breakpoint()
             print(git_line)
-            if func_name is not None:
-                if func_name != "":
-                    unique_funcs.add(func_name)
+            if func_name is not None and func_name !="":
+                #if func_name != "":
+                unique_funcs.add(func_name)
                 print(func_name)
             else:
 
@@ -271,14 +326,87 @@ def extract_function_info(lis , file_info, status, path_to_patch):
                 #print(lines) 
                 #print(target_line)
                 #print(path_for_cfile)
-               
+                modules.add(path_for_cfile)
                 function_name = find_function_containing_diff(path_for_cfile, lines)
                 print("here is a function name")
                 print(function_name)
                 if function_name is not None:
                     unique_funcs.add(function_name)
 
-    return unique_funcs
+    return unique_funcs, modules
+
+def extract_function_info_extend(lis , file_info, status, path_to_patch):
+    breakpoint()
+    files_funcs = {}
+    unique_funcs = set()
+    modules = set()
+    for file_idx in file_info:
+        file_name = lis[file_idx]
+        file_parts = file_name.split()
+        print(file_parts)
+        if len(file_parts) == 2:
+            f_name = file_parts[-1].strip()
+        if len(file_parts) > 2:
+            f_name = file_parts[1].strip()
+
+
+        #f_name = file_name.split(" ")[-1].strip()
+        git_lines = file_info[file_idx]
+        modifided_lines = find_lines_for_diff(lis, git_lines)
+        for l in git_lines:
+            git_line = lis[l]
+            git_line = git_line.strip()
+            diff_lines = modifided_lines[l]
+            func_name = extract_func_name(git_line)
+            changed_lines = find_patch_lines(git_line)
+            #print(git_line)
+            #print(func_name)
+            
+
+            #print(changed_lines)
+            target_line = None
+            lines_khonsa = []
+            lines_positive = []
+            lines_negative = []
+            for li in diff_lines:
+                if not li.startswith('+') and not li.startswith('-') and '@' not in li:
+                    lines_khonsa.append(li.strip())
+                elif li.startswith('+') and '@' not in li:
+                    li = li[1:]
+                    if li.strip() != "":
+                        lines_positive.append(li.strip())
+                elif li.startswith('-') and '@' not in li:
+                    li = li[1:]
+                    if li.strip() != "":
+                        lines_negative.append(li.strip())
+                
+
+            
+            #breakpoint()
+            print(git_line)
+            if func_name is not None and func_name !="":
+                #if func_name != "":
+                unique_funcs.add(func_name)
+                print(func_name)
+            else:
+
+                path_for_cfile = find_cfile_path(path_to_patch, f_name)
+                print("file_name")
+                print(f_name)
+                print(path_to_patch)
+                print(path_for_cfile)
+                #print(lines) 
+                #print(target_line)
+                #print(path_for_cfile)
+                modules.add(path_for_cfile)
+                function_name = find_function_containing_diff_extra(path_for_cfile, lines_khonsa, lines_positive, lines_negative)
+                print("here is a function name")
+                print(function_name)
+                if function_name is not None:
+                    unique_funcs.add(function_name)
+
+    return unique_funcs, modules
+
 
 def contains_specific_cve(file_path, cve_id):
     """
@@ -355,24 +483,28 @@ if __name__ == "__main__":
     count = 0
 
     list_funcs = []
+    list_modules = []
     for cve in cve_dirs:
-        #if cve == 'CVE-2019-12110':
-        try:
-            #print(cve)
-            #breakpoint()
-            first = list(cve_dirs[cve][0])[0]
-            #second = list(cve_dirs[cve][1])[0]
-            status = "patch"
-            patch_file_info, patch_lines = parse_patch_file(first)
-            print(cve)
-            funcs = extract_function_info(patch_lines, patch_file_info,status, first)
-            print("**************")
-            list_funcs += list(funcs)
-            
-        except:
-            continue 
-    print(len(cve_dirs.keys()))       
-    print(len(list_funcs))
+        if cve == 'CVE-2018-20349':
+            try:
+                #print(cve)
+                #breakpoint()
+                first = list(cve_dirs[cve][0])[0]
+                print(first)
+                #second = list(cve_dirs[cve][1])[0]
+                status = "patch"
+                patch_file_info, patch_lines = parse_patch_file(first)
+                print(cve+":\n")
+                funcs, modules = extract_function_info_extend(patch_lines, patch_file_info,status, first)
+                print("**************")
+                list_funcs += list(funcs)
+                list_modules+= list(modules)
+                
+            except:
+                continue 
+    #print(len(cve_dirs.keys()))       
+    #print(len(list_funcs))
+    #print(list_modules)
     
     
 
