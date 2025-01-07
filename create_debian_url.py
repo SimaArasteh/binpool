@@ -2,7 +2,9 @@ import argparse
 import requests
 from time import sleep
 from bs4 import BeautifulSoup
-
+import pandas as pd
+import joblib
+from tqdm import tqdm
 # Function to create a Debian snapshot URL
 def create_debian_url(param_value):
     delimiter = "_"
@@ -42,17 +44,17 @@ def crawl_webpage(url):
         return []
 
 # Main function
-def main(tuples_second_index_value):
+def url_source(tuples_second_index_value):
     # Step 1: Create the Debian URL
     result = create_debian_url(tuples_second_index_value)
-    print(f"Processed result: {result}")
+    #print(f"Processed result: {result}")
     
     #wait_time = 2
     #sleep(wait_time)
 
     # Step 2: Check if the URL is valid
     is_valid = check_valid_url(result+"/")
-    print(f"Is URL valid: {is_valid}")
+    #print(f"Is URL valid: {is_valid}")
 
     # Step 3: If the URL is valid, crawl the webpage
     if is_valid:
@@ -64,11 +66,22 @@ def main(tuples_second_index_value):
         for href in links:
             if '/debian/' in href:
                 source_url = f"{main_url}{href}"
-                print(f"Found source URL: {source_url}")
+                return source_url
+                #print(f"Found source URL: {source_url}")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Process Debian URLs and crawl web pages")
-    parser.add_argument('tuples_second', type=str, help="The second tuple value to process")
+    #parser = argparse.ArgumentParser(description="Process Debian URLs and crawl web pages")
+    #parser.add_argument('tuples_second', type=str, help="The second tuple value to process")
 
-    args = parser.parse_args()
-    main(args.tuples_second)
+    #args = parser.parse_args()
+    #main(args.tuples_second)
+    df = pd.read_csv('binpool2.csv')
+    second_column = df.iloc[:, 1].tolist()
+    list_links = []
+    for item in tqdm(second_column):
+        src = url_source(item)
+        print(src)
+        list_links.append((item,src ))
+
+    joblib.dump(list_links, 'binpool_src_links.pkl')
+  

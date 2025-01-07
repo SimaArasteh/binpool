@@ -132,9 +132,14 @@ if __name__ == "__main__":
     joblib.dump(package_versions_url, 'package_versions_url.pkl')'''
     package_versions_url = joblib.load('package_versions_url.pkl')
     save_path = "debianpack_debiantar/"
-    for pack in tqdm(package_versions_url):
-        #print(pack)
-        for item in package_versions_url[pack]:
+    keys = list(package_versions_url.keys())
+    #breakpoint()
+    start = "https://snapshot.debian.org/package/cppcheck/"
+    start_index = keys.index(start) if start in keys else 0
+    for key in tqdm(keys[start_index+1:]):
+        #print(pack.split("/")[-2])
+        
+        for item in package_versions_url[key]:
             time.sleep(2)
             hrefs = crawl_webpage(item)
             if len(hrefs):

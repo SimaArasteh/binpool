@@ -12,7 +12,7 @@ def find_function_boundaries(file_path):
         stack = []
         function_start = None
         line_number = 0
-
+        functions = []
         for line in lines:
             line_number += 1
             stripped_line = line.strip()
@@ -38,15 +38,20 @@ def find_function_boundaries(file_path):
             print(f"Functions detected in '{file_path}':")
             for start, end in function_boundaries:
                 #print(f"Function from line {lines[start-2]} to {end}")
-                code_str = "".join(l for l in lines[start-2:start])
+                filterted_lines = filter_code_snippet(lines[start-4:start])
+                code_str = "".join(l for l in filterted_lines)
                 print(code_str)
                 res = classify_names_by_kind(code_str)
-                print(res)
+                all_functions = find_func_name(res)
+                if all_functions is not None:
+                    functions.append((all_functions, start, end, lines[start-1:end]))
+
+                
                 print("***********")
         else:
             print(f"No functions detected in '{file_path}'.")
 
-        return function_boundaries
+        return functions
 
     except FileNotFoundError:
         print(f"Error: File '{file_path}' not found.")
@@ -56,7 +61,32 @@ def find_function_boundaries(file_path):
         return []
 
 # Example Usage
+def find_func_name(ast_result):
+    count=0
+    funcs = []
+    for entry in ast_result:
+        if entry['kind'] == 'FUNCTION_DECL':
+            funcs.append(entry['name'])
+            count+=1
+    if count == 1:
+        return funcs[0]
+    return None
 
+
+
+def filter_code_snippet(code_lines):
+    target_index = 0
+    for index in range(len(code_lines)):
+        if '{' in code_lines[index]:
+            target_index=index
+            break
+    start_index = target_index
+    while start_index >= 0:
+        if '(' in code_lines[start_index]:
+            break
+
+        start_index-=1
+    return code_lines[start_index:target_index+1]
 
 def classify_names_by_kind(code: str):
     """
@@ -112,4 +142,5 @@ def classify_names_by_kind(code: str):
     return result
 if __name__ == "__main__":
     file_path = "CVE_Directories/CVE-2018-20349/r-cran-igraph-1.2.4.1/.pc/CVE-2018-20349.patch/src/foreign-graphml.c"  # Replace with your C/C++ file path
-    bounderies = find_function_boundaries(file_path)
+    funcs = find_function_boundaries(file_path)
+    print(len(funcs))
