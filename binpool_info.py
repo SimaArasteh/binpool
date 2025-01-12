@@ -46,6 +46,7 @@ def parse_patch_file(patch_file):
 
 def extract_function_info(lis , file_info, status, path_to_patch):
     files_funcs = {}
+    funcs = set()
     for file_idx in file_info:
         file_name = lis[file_idx]
         f_name = file_name.split(" ")[-1].strip()
@@ -78,18 +79,18 @@ def extract_function_info(lis , file_info, status, path_to_patch):
 
             #print(path_to_patch)
             #breakpoint()
-            path_for_cfile = find_cfile_path(path_to_patch, f_name)
+            #path_for_cfile = find_cfile_path(path_to_patch, f_name)
             #print(lines)
             #print(target_line)
             #print(path_for_cfile)
-            function_name = find_function_containing_diff(path_for_cfile, lines)
-            print("here is a function name")
-            print(function_name)
-
+            #function_name = find_function_containing_diff(path_for_cfile, lines)
+            #print("here is a function name")
+            #print(function_name)
+            funcs.add( func_name)
             #extracted_function , extracted_line_num = explore_for_function(path_for_cfile, target_line)
             #print(extracted_function)
 
-
+    return funcs
 
 def find_cfile_path (patch_path, file_name):
     # Find the position of "/debian/patches"
@@ -273,11 +274,29 @@ def explore_for_function(file_path,target_line):
     # If no function is found for the line
     return None
 
+ 
 
 
 def main():
     
-    parser = argparse.ArgumentParser(description="Process binary directory and patch file paths.")
+    directory = "/workspaces/binpool/binpool_final_release/"
+    cves = set()
+    all_functions = []
+    for root, dirs, files in os.walk(directory):
+        for filename in files:
+            path_file = os.path.join(root, filename)
+            path_name = path_file.split("/")[-1]
+            if path_file.endswith(".patch") and '_opt' in path_name:
+                #print(path_file)
+                patch_file_info, patch_lines = parse_patch_file(path_file)
+    
+                functions = extract_function_info(patch_lines, patch_file_info, 'p', path_file)
+                all_functions = all_functions+list(functions)
+                
+    for f in set(all_functions):
+        print(f)
+
+    '''parser = argparse.ArgumentParser(description="Process binary directory and patch file paths.")
     parser.add_argument('-b', '--binaries_dir', required=True, type=str, help='Path to the directory containing the binaries')
     parser.add_argument('-p', '--patch_file', required=True, type=str, help='Path to the patch file')
     parser.add_argument('-s', '--status', required=True, type=str, help='define if the built package is patched or vulnerable')
@@ -296,7 +315,7 @@ def main():
 
     patch_file_info, patch_lines = parse_patch_file(args.patch_file)
     
-    extract_function_info(patch_lines, patch_file_info, args.status, args.patch_file)
+    extract_function_info(patch_lines, patch_file_info, args.status, args.patch_file)'''
 
 
 
