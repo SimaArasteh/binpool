@@ -1,0 +1,3 @@
+[submodule "binpool_automation"]
+	path = binpool_automation
+	url = https://github.com/GiorgosNikitopoulos/binpool_automation.git
