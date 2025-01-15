@@ -79,6 +79,15 @@ def extract_function_info(lis , file_info, status, path_to_patch):
 
             #print(path_to_patch)
             #breakpoint()
+            if func_name is None:
+                target_dir = '/'.join(path_to_patch.split("/")[:5])
+                #print(target_dir)
+                path_for_cfile = find_cfile_path_for_patch(target_dir)
+                print(path_for_cfile)
+                #function_name = find_function_containing_diff(path_for_cfile, lines)
+                #print("here is a function name")
+                #print(function_name)
+
             #path_for_cfile = find_cfile_path(path_to_patch, f_name)
             #print(lines)
             #print(target_line)
@@ -86,7 +95,8 @@ def extract_function_info(lis , file_info, status, path_to_patch):
             #function_name = find_function_containing_diff(path_for_cfile, lines)
             #print("here is a function name")
             #print(function_name)
-            funcs.add( func_name)
+            if func_name is not None:
+                funcs.add( func_name)
             #extracted_function , extracted_line_num = explore_for_function(path_for_cfile, target_line)
             #print(extracted_function)
 
@@ -113,6 +123,22 @@ def find_cfile_path (patch_path, file_name):
         return full_path
     else:
         print("The substring '/debian/patches' was not found in the path.")
+
+
+def find_cfile_path_for_patch(cve_directory):
+    cve = cve_directory.split("/")[-1]
+
+    for root, directories, files in os.walk(cve_directory):
+        for filename in files:
+            filepath = os.path.join(root, filename)
+            patch_name = filepath.split("/")[-2]
+            if '.pc' in filepath and cve in patch_name:
+                return filepath
+                
+
+
+
+
 
 def find_path_in_directory(directory, partial_path):
     # Walk through all directories and subdirectories
@@ -282,19 +308,44 @@ def main():
     directory = "/workspaces/binpool/binpool_final_release/"
     cves = set()
     all_functions = []
+    count = 0
     for root, dirs, files in os.walk(directory):
         for filename in files:
             path_file = os.path.join(root, filename)
             path_name = path_file.split("/")[-1]
+            cve_target2 = path_file.split("/")[4]
             if path_file.endswith(".patch") and '_opt' in path_name:
                 #print(path_file)
                 patch_file_info, patch_lines = parse_patch_file(path_file)
     
                 functions = extract_function_info(patch_lines, patch_file_info, 'p', path_file)
+                #print(functions)
+                if len(functions):
+                    cves.add(cve_target2)
                 all_functions = all_functions+list(functions)
                 
-    for f in set(all_functions):
-        print(f)
+            else:
+                if 'debian/patches/' in  path_file and path_file.endswith(".patch"):
+                    path_name = path_file.split("/")[-1]
+                    cve_pattern = r'CVE-\d{4}-\d{4,}'
+                    cve_list = re.findall(cve_pattern, path_name)
+                    cve_target = path_file.split("/")[4]
+                    
+                    with open(path_file, 'r') as file:
+                        lines = file.read()
+                    for cve in cve_list:
+                        if cve == cve_target or cve in lines:
+                            patch_file_info, patch_lines = parse_patch_file(path_file)
+    
+                            functions = extract_function_info(patch_lines, patch_file_info, 'p', path_file)
+                            if len(functions):
+                                cves.add(cve_target2)
+                            all_functions = all_functions+list(functions)
+                            
+                            
+    print(len(set(cves)))
+    print(len(set(all_functions)))             
+    
 
     '''parser = argparse.ArgumentParser(description="Process binary directory and patch file paths.")
     parser.add_argument('-b', '--binaries_dir', required=True, type=str, help='Path to the directory containing the binaries')

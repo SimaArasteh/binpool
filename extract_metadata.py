@@ -188,7 +188,7 @@ def get_function_code_and_ranges(filepath):
                        and the code lines as a list of strings.
     """
     # Initialize Clang index
-    breakpoint()
+    #breakpoint()
     translation_unit = index.parse(filepath)
     functions = []
 
@@ -296,7 +296,7 @@ def find_function_boundaries(file_path):
 
         # Print results
         if function_boundaries:
-            print(f"Functions detected in '{file_path}':")
+            #print(f"Functions detected in '{file_path}':")
             for start, end in function_boundaries:
                 #print(f"Function from line {start} to {end}")
                 
@@ -482,6 +482,8 @@ def extract_function_info_extend(lis , file_info, status, path_to_patch):
     files_funcs = {}
     unique_funcs = set()
     modules = set()
+    patched_lines = []
+    vuled_lines = []
     for file_idx in file_info:
         file_name = lis[file_idx]
         file_parts = file_name.split()
@@ -496,7 +498,10 @@ def extract_function_info_extend(lis , file_info, status, path_to_patch):
         git_lines = file_info[file_idx]
         modifided_lines = find_lines_for_diff(lis, git_lines)
         for l in git_lines:
+            #breakpoint()
             git_line = lis[l]
+            lines_modified_patch = git_line.split("@@")[1].strip()
+            vul_lines , patch_lines= lines_modified_patch.split(" ")
             git_line = git_line.strip()
             diff_lines = modifided_lines[l]
             func_name = extract_func_name(git_line)
@@ -525,30 +530,70 @@ def extract_function_info_extend(lis , file_info, status, path_to_patch):
 
             
             #breakpoint()
-            print(git_line)
+            #print(git_line)
+            target_dir = '/'.join(path_to_patch.split("/")[:5])
+            path_for_cfile = find_cfile_path_for_patch(target_dir)
+            
+            
             if func_name is not None and func_name !="":
+                
                 #if func_name != "":
                 unique_funcs.add(func_name)
+                patched_lines.append(patch_lines)
+                vuled_lines.append(vul_lines)
+                print("*************look at there*******************")
+                print(path_to_patch)
                 print(func_name)
-            else:
-
-                path_for_cfile = find_cfile_path(path_to_patch, f_name)
+                print(f_name)
+                print(path_for_cfile)
+                print("*************look at there*******************\n")
+                modules.add(f_name)
+                #print(func_name)
+            if func_name is None:
+                #breakpoint()
+                
                 #print("file_name")
                 #print(f_name)
-                #print(path_to_patch)
-                #print(path_for_cfile)
-                #print(lines) 
-                #print(target_line)
-                #print(path_for_cfile)
-                modules.add(path_for_cfile)
-                function_name = find_function_containing_diff_extra(path_for_cfile, lines_khonsa, lines_positive, lines_negative)
-                print("here is a function name")
-                print(function_name)
-                if function_name is not None:
-                    unique_funcs.add(function_name)
+                #modules.add(path_for_cfile)
+                if path_for_cfile is not None:
+                    if path_for_cfile.endswith(".c") or path_for_cfile.endswith(".cpp") or path_for_cfile.endswith(".cxx"):
+                        #print(path_for_cfile)
+                        #print(path_for_cfile)
+                        #print(lines) 
+                        #print(target_line)
+                        #print(path_for_cfile)
+                        
+                        function_name = find_function_containing_diff_extra(path_for_cfile, lines_khonsa, lines_positive, lines_negative)
+                        #print("here is a function name")
+                        #print(function_name)
+                        if function_name is not None:
+                            print("*************look at there*******************")
+                            print(path_to_patch)
+                            print(func_name)
+                            print(f_name)
+                            print(path_for_cfile)
+                            print("*************look at there*******************\n")
+                            unique_funcs.add(function_name)
+                            patched_lines.append(patch_lines)
+                            vuled_lines.append(vul_lines)
 
-    return unique_funcs, modules
+    return unique_funcs, modules, patched_lines, vuled_lines
 
+def find_cfile_path_for_patch(cve_directory):
+    cve = cve_directory.split("/")[-1]
+
+    for root, directories, files in os.walk(cve_directory):
+        for filename in files:
+            filepath = os.path.join(root, filename)
+            #patch_name = filepath.split("/")[-2]
+            patch_name = ""
+            patch_parts = filepath.split("/")
+            for entry in patch_parts:
+                if '.patch' in entry:
+                    patch_name = entry
+            if '.pc' in filepath and cve in patch_name:
+                return filepath
+                
 
 def contains_specific_cve(file_path, cve_id):
     """
@@ -579,6 +624,66 @@ def contains_specific_cve(file_path, cve_id):
         return False
 
 if __name__ == "__main__":
+
+    '''directory = "/workspaces/binpool/binpool_final_release/"
+    cves = set()
+    all_functions = []
+    all_modules = []
+    count = 0
+    cves_map = []
+    for root, dirs, files in os.walk(directory):
+        for filename in files:
+            path_file = os.path.join(root, filename)
+            path_name = path_file.split("/")[-1]
+            cve_target2 = path_file.split("/")[4]
+            #if cve_target2 == "CVE-2019-12108":
+                
+            if path_file.endswith(".patch") and '_opt' in path_name:
+                #print(path_file)
+                #breakpoint()
+                patch_file_info, patch_lines = parse_patch_file(path_file)
+    
+                functions, modules, patched_modified,  vul_modified = extract_function_info_extend(patch_lines, patch_file_info, 'p', path_file)
+                #print(functions)
+                if len(functions) and len(modules):
+                    cves.add(cve_target2)
+                    all_functions = all_functions+list(functions)
+                    all_modules = all_modules+list(modules)
+                    cves_map.append((cve_target2, functions, modules,patched_modified, vul_modified))
+                
+            else:
+                if 'debian/patches/' in  path_file and path_file.endswith(".patch"):
+                    #breakpoint()
+                    path_name = path_file.split("/")[-1]
+                    cve_pattern = r'CVE-\d{4}-\d{4,}'
+                    cve_list = re.findall(cve_pattern, path_name)
+                    cve_target = path_file.split("/")[4]
+                    
+                    with open(path_file, 'r') as file:
+                        lines = file.read()
+                    for cve in cve_list:
+                        if cve == cve_target or cve_target in lines:
+                            patch_file_info, patch_lines = parse_patch_file(path_file)
+    
+                            functions, modules , patched_modified_lines, vul_modified_lines= extract_function_info_extend(patch_lines, patch_file_info, 'p', path_file)
+                            if len(modules):
+                                cves.add(cve_target2)
+                                all_modules = all_modules+list(modules)
+                                cves_map.append((cve_target2, functions, modules))
+                            if len(functions):
+                                all_functions = all_functions+list(functions)
+                                cves_map.append((cve_target2, functions, modules, patched_modified_lines, vul_modified_lines))
+                                
+                                
+                            
+    print(len(cves))
+    print(len(set(modules)))
+    print(len(set(all_functions)))
+    joblib.dump(cves_map, 'map_cves_funcs_with_linesinfo.pkl')
+    #for func in set(all_functions):
+        #print(func)'''        
+    result_mapping = joblib.load('map_cves_funcs_with_linesinfo.pkl')
+    
 
     '''directory ="CVE_Directories/"
     cves = set()
@@ -621,7 +726,7 @@ if __name__ == "__main__":
             print(cve)
     joblib.dump(per_cve, 'cve_dirs.pkl')'''
 
-    cve_dirs = joblib.load('cve_dirs.pkl')
+    '''cve_dirs = joblib.load('cve_dirs.pkl')
     count = 0
 
     list_funcs = []
@@ -646,7 +751,7 @@ if __name__ == "__main__":
             continue 
     print(len(cve_dirs.keys()))       
     print(len(list_funcs))
-    print(list_modules)
+    print(list_modules)'''
     
     
 
