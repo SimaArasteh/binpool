@@ -90,7 +90,7 @@ def etxract_statistics(cve_structure):
     
 
 def create_directories_cves(cve_dict):
-    base_dir = '/home/sima/binpool/binpool_artifact/'
+    base_dir = '/home/sima/binpool/binpool_dataset/'
     for cve_id in cve_dict.keys():
         # Define the path for each CVE directory
         cve_dir = os.path.join(base_dir, cve_id)
@@ -146,11 +146,11 @@ if __name__ == "__main__":
                 #print(pack+"_"+cve+"_"+opt)
                 for path in paths:
                     if pack in path and '_None_' in path and opt in path:
-                        destination_directory = "binpool_artifact/"+cve+"/patch/"+opt+"/"
+                        destination_directory = "binpool_dataset/"+cve+"/patch/"+opt+"/"
                         os.makedirs(destination_directory, exist_ok=True)
                         shutil.copy(path, destination_directory)
                     elif pack in path and cve in path and opt in path:
-                        destination_directory = "binpool_artifact/"+cve+"/vulnerable/"+opt+"/"
+                        destination_directory = "binpool_dataset/"+cve+"/vulnerable/"+opt+"/"
                         os.makedirs(destination_directory, exist_ok=True)
                         shutil.copy(path, destination_directory)
 
