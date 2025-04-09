@@ -19,7 +19,7 @@ BinPool is a dataset consisting of vulnerable and patched binaries derived from 
 You can find the BinPool paper in . 
 
 ## Access
-You can download the dataset from https://drive.google.com/drive/folders/107KtnXxHh1ZTVW7eWPbB5mo_S6rwIGLW?usp=sharing. 
+You can download the dataset from [https://drive.google.com/drive/folders/107KtnXxHh1ZTVW7eWPbB5mo_S6rwIGLW?usp=sharing](https://zenodo.org/records/15178740?token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjYyNjNiOWM1LTU0MDUtNGZhNi04Y2JiLTljNmU1YTFlYTY1ZSIsImRhdGEiOnt9LCJyYW5kb20iOiI0YmUwNTVkODZlNzljOWMxN2JhNzA1OTVjMzcyMWMzYyJ9.SweHr1Ywaw-sKt8WEe17cZvgg53iLDqlRsW7mVLewqEAoQD1ZqJxkiCyUYU073acwED5HbN_yg8Kj5GAl4h3Bg). 
 
 ## Features
 
