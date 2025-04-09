@@ -7,6 +7,7 @@ import re
 import clang.cindex
 from clang import cindex
 import os
+import json
 #clang.cindex.Config.set_library_file('/mnt/debian11/usr/lib/llvm-11/lib/libclang.so.1')
 index = clang.cindex.Index.create()
 def parse_patch_file(patch_file):
@@ -300,8 +301,10 @@ def explore_for_function(file_path,target_line):
     # If no function is found for the line
     return None
 
- 
-
+def parse_json_debian_security(json_path):
+    with open(json_path, 'r') as f:
+        data = json.load(f)
+        print(data)
 
 def main():
     
