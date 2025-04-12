@@ -11,7 +11,7 @@ def extract_deb_files(cve_dir):
     """
     # Define the vulnerable and patch directories
     paths_to_process = ['vulnerable', 'patch']
-    
+    #breakpoint()
     # Iterate through both vulnerable and patch directories
     for version_dir in paths_to_process:
         version_path = os.path.join(cve_dir, version_dir)

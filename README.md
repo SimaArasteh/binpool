@@ -19,7 +19,7 @@ BinPool is a dataset consisting of vulnerable and patched binaries derived from 
 You can find the BinPool paper in . 
 
 ## Access
-You can download the dataset from (http://138.199.150.133/binpool.tar.gz). 
+You can download the dataset from [https://drive.google.com/drive/folders/107KtnXxHh1ZTVW7eWPbB5mo_S6rwIGLW?usp=sharing](https://zenodo.org/records/15178740?token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjYyNjNiOWM1LTU0MDUtNGZhNi04Y2JiLTljNmU1YTFlYTY1ZSIsImRhdGEiOnt9LCJyYW5kb20iOiI0YmUwNTVkODZlNzljOWMxN2JhNzA1OTVjMzcyMWMzYyJ9.SweHr1Ywaw-sKt8WEe17cZvgg53iLDqlRsW7mVLewqEAoQD1ZqJxkiCyUYU073acwED5HbN_yg8Kj5GAl4h3Bg). 
 
 ## Features
 
@@ -192,3 +192,26 @@ after extraction, you should have a structure as an example below.
 <img src="images/extracted.png" alt="Project Logo" width="300"/>
 </p>
 
+# Trouble Shooting
+
+1. Please remember that building these packages is not an easy task. You may encounter so many technical issues. I recommend to always choose the higher version as a fix version. 
+
+2. quilt may sometimes have a bug. It sometimes gives error to apply the patch and in this case I just choose another option
+
+3. If you cannot build a package do not spend much time on it. Try to choose those that you can build faster. 
+
+
+
+# Tasks 
+
+I chose CVEs randomly from remaining CVEs and splited them betwen us. In order to find out what CVEs you have to build, please follow the step below. 
+
+load the file with your name in the tasks directory using the following code.
+
+```
+import joblib
+
+sima_tasks = joblib.load('tasks/sima.pkl') # to load CVEs sima has to compile
+```
+
+Please remember that in the file https://docs.google.com/spreadsheets/d/1qztIwB8xJ10H-2HLX15vI29Ze7yFDOrv7kDQ4JUi1g8/edit?usp=sharing, the green records are those that I have built. I exclude them from the rests and then assigned the remaining CVEs. Please mark the records in the sheet when you build it. 
