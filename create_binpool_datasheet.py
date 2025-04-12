@@ -2,10 +2,8 @@ import json
 import joblib
 import pandas as pd
 
-file_path = "debiansecurity.json"
-df = pd.read_csv('binpool.csv')
-list_cves = list(set(df['cve'].tolist()))
-print(list_cves)
+file_path = "debian_security.json"
+
 # package - CVE- 'releases' - release-names- fixed version
 data_sheets = []
 with open(file_path, 'r', encoding='utf-8') as file:
@@ -20,12 +18,12 @@ with open(file_path, 'r', encoding='utf-8') as file:
                     fix = data[pack_name][cve]['releases'][r]['fixed_version']
                     #print(pack_name+"_"+fix)
                     if fix != '0':
-                        data_sheets.append((cve, pack_name+"_"+fix))
+                        data_sheets.append((cve, pack_name, fix))
 
 
-columns = ["cve", "fix_version"]
+columns = ["cve", "pack_name", "fix_version"]
 
 df = pd.DataFrame(list(set(data_sheets)), columns=columns)
 
-file_name = "binpool2.csv"
+file_name = "binpool3.csv"
 df.to_csv(file_name, index=False)

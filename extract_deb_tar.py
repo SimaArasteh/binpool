@@ -156,7 +156,7 @@ if __name__ == "__main__":
     
     
     #extract_debian_files('CVE_Directories/')
-    root_dir = "/home/sima/binpool/binpool_artifact"
+    root_dir = "/home/sima/binpool/binpool_dataset/"
     for root, dirs, files in os.walk(root_dir):
         for file in files:
             path = os.path.join(root, file)
@@ -165,7 +165,7 @@ if __name__ == "__main__":
                 if ends_with_opt(path):
                     extract_tar_to_debfiles(path)
     
-    root_dir = "/home/sima/binpool/binpool_artifact/"
+    root_dir = "/home/sima/binpool/binpool_dataset/"
     for root, dirs, files in os.walk(root_dir):
         for file in files:
             path = os.path.join(root, file)

@@ -108,9 +108,16 @@ def extract_function_names(dataset_path):
             cve = full_path.split("/")[1]
             if full_path.endswith(".patch") and 'opt0' in full_path:
                 print(cve)
+                
                 file_infos, file_lines = parse_patch_file(full_path)
                 returned_funcs = extract_function_info(file_lines, file_infos, 's', full_path)
                 #print(file_infos)
+                funcs = []
+                for fi, fn in returned_funcs:
+                    print(fi)
+                    if fn is not None:
+                        funcs.append(fn)
+                print(funcs)
                 map_cve_funcs[cve] = returned_funcs
                 print("*************************")
                 
@@ -138,7 +145,7 @@ def find_lines_for_diff(patch_lines, g_lines):
 def find_function(git_diff_line):
     if "(" in git_diff_line:
         parts = git_diff_line.split("(")[0]
-        func = parts.split(" ")[-1]
+        func = parts.strip().split(" ")[-1]
         return func
     return None
 
@@ -162,10 +169,11 @@ def extract_function_info(lis , file_info, status, path_to_patch):
     list_file_funcs = []
     for file_idx in file_info:
         file_name = lis[file_idx]
-        f_name = file_name.split(" ")[-1].strip()
+        f_name = file_name.split(" ")[1].split("\t")[0].strip()
         f_name = f_name[2:]
         files.add(f_name)
         f_last_name = f_name.split("/")[-1]
+        print(f_last_name)
         git_lines = file_info[file_idx]
         modifided_lines = find_lines_for_diff(lis, git_lines)
         for l in git_lines:
@@ -175,7 +183,7 @@ def extract_function_info(lis , file_info, status, path_to_patch):
             #print(git_line)
             func_name = find_function(git_line)
             changed_lines = find_patch_lines(git_line)
-            print(func_name)
+            
             #print(changed_lines)
             target_line = None
 
@@ -189,15 +197,16 @@ def extract_function_info(lis , file_info, status, path_to_patch):
                 for dirpath, dirnames, filenames in os.walk(root_dir):
                     for filename in filenames:
                         full_path = os.path.join(dirpath, filename)
-                        if ".pc/" in full_path and full_path.split("/")[-1] == f_last_name:
+                        if  ".pc/" not in full_path and full_path.split("/")[-1] == f_last_name:
                             if full_path.endswith(".c") or full_path.endswith(".cpp") or full_path.endswith(".java"):
                                 try:
                                     with open(full_path, 'r') as f:
                                         data = f.readlines()
-                                        #print(full_path)
+                                        print(full_path)
                                         #breakpoint()
                                         indexes = define_fountion_bounderies(data)
                                         function_name = find_function_name(diff_lines, data ,indexes, full_path)
+                                        print(function_name)
                                         list_file_funcs.append((f_name, function_name))
                                     
                                 except:
@@ -222,28 +231,30 @@ def find_function_name(diff_lines, file_lines, function_indexes, path):
     target_functions = []
     
     for func_start , func_end in function_indexes:
+        
         count = 0
         patch_lines = []
-        for diff in diff_lines:
-            if diff.startswith("+"):
+        for diff in diff_lines[1:]:
+            if not diff.startswith("-"):
                 patch_lines.append(diff)
 
-            
+        flags = []
         for p in patch_lines:
             
             
             for index in range(func_start, func_end):
                 if file_lines[index].strip() == p[1:].strip():
-
+                    flags.append(True)
                     count+=1
                     break
-        if len(patch_lines) == count:
+        if len(patch_lines) == count and all(flags):
             #print(patch_lines)
             target_functions.append((func_start, func_end))
 
 
     if len(target_functions) == 1:
-         for line in file_lines[func_start-4:func_start]:
+         start = target_functions[0][0]
+         for line in file_lines[start-4:start]:
             if "(" in line:
                 return line.split("(")[0]
     else:
@@ -345,20 +356,42 @@ def main():
     args = parser.parse_args()
     dataset_path = args.dataset_path
     #extract_binpool_info(dataset_path)
-    source_funcs = extract_function_names(dataset_path)
+    #source_funcs = extract_function_names(dataset_path)
+    #joblib.dump(source_funcs, "metadata/source_funcs.pkl")
     count = 0
     functions = set()
     files = set()
+    source_funcs = joblib.load("metadata/source_funcs.pkl")
+    cve_cwe = joblib.load("metadata/map_cwe_pack.pkl")
+    cwes = []
     for cve in source_funcs:
         print(cve)
+        cwes= cwes+cve_cwe[cve]
+        fs = []
+        fis = []
         for file, func in source_funcs[cve]:
             print(file)
             if func is not None:
                 functions.add(func)
                 files.add(file)
+                fs.append(func)
+            if file.endswith(".c") or file.endswith(".cpp"):
+                fis.append(True)
+
+        if not len(fs) and any(fis):
+            count+=1
         print("++++++++++++++++++++")
-    print(len(functions))
+    print(len(functions)+count)
     print(len(files))
+    unique_cwes = set(cwes)
+    list_cve_cwe = []
+    for cwe in unique_cwes:
+        print(cwe)
+        print(cwes.count(cwe))
+        list_cve_cwe.append((cwe, cwes.count(cwe)))
+        print("*************")
+    sorted_list = sorted(list_cve_cwe, key=lambda x: x[1])
+    print(sorted_list[-10:-1])
     '''df = pd.read_csv('binpool3.csv')
     df_unique = df.drop_duplicates(subset='cve', keep='first')
 
