@@ -222,6 +222,7 @@ for more details and understand how to run the automation proccess, we refer the
 
 After downaloding our dataset, run extract_deb_tar.py to extract debian files into binaries. you should see this structure. 
 
+```
 CVE-ID/
 │
 ├── vulnerable/                
@@ -251,7 +252,7 @@ CVE-ID/
     └── opt3/
         └── debfiles/
             └── bins/
-
+```
                           
 
 ## Statistics
