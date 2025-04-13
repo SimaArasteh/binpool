@@ -10,6 +10,7 @@
 - [Features](#features)
 - [Structure](#Structure)
 - [Installation](#installation)
+- [Automation](#Automation)
 - [Usage](#usage)
 - [Statistics](#Statistics)
 - [Team](#Team)
@@ -81,19 +82,19 @@ CVE-ID/
 
 ## Installation
 
-If you want to build BinPool, follow these steps. 
+In this Section, we explain the logic behind how we created the binpool dataset. 
 
-We built BinPool by integrating debian snapshot , NVD and debian security tracker. You can access the link of binpool
-records from https://docs.google.com/spreadsheets/d/1qztIwB8xJ10H-2HLX15vI29Ze7yFDOrv7kDQ4JUi1g8/edit?usp=sharing. 
+Debian security tracker provides  the up to date CVEs in Debian packages in a json format.( https://security-tracker.debian.org/tracker/data/json ). For each CVE there is a package name and version that fix 
+the CVE. We collect all this data in https://docs.google.com/spreadsheets/d/1qztIwB8xJ10H-2HLX15vI29Ze7yFDOrv7kDQ4JUi1g8/edit?usp=sharing .
 
-For each CVE in the link above, grab the corresponding fix version. This is the version of the package that fix this CVE. For each CVE, there are more than one fix version but you can try to grab anyone. Note that usually if the version is higher, it is more likely to get built. 
+We download the package source for each CVE by following the below steps.
 
-1. After finding the Debian package, visit the Debian snapshot site (https://snapshot.debian.org/). On the left sidebar, under the "Packages" section, select "Source Packages" and enter only the source name of the package (for example, for the package `tigervnc_1.7.0-2`, just type `tigervnc`). This will display all available versions of the package. Select the desired version, such as `1.7.0-2` in this case.On the version page, you will find both the source files and binary packages. Thanks to the Debian community, all source packages are pre-built and available for download. The binaries contain only patched functions. Since we need to build both the vulnerable and patched versions, and compile binaries with different optimization levels, we will need to download the source files for this purpose.Under source files section, right click on ```package_version.dsc``` and copy the link address. We also provide you an autmated script to find this source link. 
+1. After finding the Debian package, visit the Debian snapshot site (https://snapshot.debian.org/). On the left sidebar, under the "Packages" section, select "Source Packages" and enter only the source name of the package (for example, for the package `tigervnc_1.7.0-2`, just type `tigervnc`). This will display all available versions of the package. Select the desired version, such as `1.7.0-2` in this case. Since we need to build both the vulnerable and patched versions, and compile binaries with different optimization levels, we will need to download the source files for this purpose.Under source files section, right click on ```package_version.dsc``` and copy the link address. We also provide you an autmated script to find this source link. 
 
 
-2. **The most important and challenging part of debian packages is to find the right debian version to build the debian package.**. We provide an automated script to find a right debian version for each package. Having a right debian version is neccessary to guarantee  the installation of debian dependencies. 
+2. **The one important step is to find the right debian version to setup environment**. We provide this step automatically. Having a right debian version is neccessary to guarantee  the installation of debian dependencies. 
 
-3. Now it is time to install the right version of debian. You can install it using virtual machines but we prefer to install it using ```debootstrap```. debootstrap is a tool used to create a minimal Debian-based (or Ubuntu-based) system installation within a directory. It is typically used to bootstrap a new Debian system by downloading essential packages, installing them, and setting up the directory structure needed for a basic system. Follow the following commands. First install deboostrap. 
+3. You can also install and setup enviroment manually. You can install it using virtual machines but we prefer to install it using ```debootstrap```. debootstrap is a tool used to create a minimal Debian-based (or Ubuntu-based) system installation within a directory. It is typically used to bootstrap a new Debian system by downloading essential packages, installing them, and setting up the directory structure needed for a basic system. Follow the following commands. First install deboostrap. 
 
 ```bash
 sudo apt-get update
@@ -124,7 +125,7 @@ mkdir vulnerable
 cd vulnerable
 ```
 
-Now download the source file you just obtained from the first step by running find_debian_version.py. Run the following command.
+Now download the source file you just obtained from the first step. Run the following command.
 
 ```
 dget -u --insecure source_file_url
@@ -206,20 +207,33 @@ to apply all patches run.
 ```
 quilt push -a
 ```
-and then build dependencies and the package using above commands. If this step goes through successfully, then the deb files are created. for dataset, please follow the below structure.
+and then build dependencies and the package using above commands. If this step goes through successfully, then the deb files are created. 
 
-# extract deb files
 
-After putting deb files into their directories based on the above structure, it is now time to extract deb files into binaries. In order to do that, run extract_deb_files.py with the directory to CVE-ID directory. 
+
+## Automation
+
+We automated all the above steps in binpool_automation. 
+
+for more details and understand how to run the automation proccess, we refer the reader to https://github.com/GiorgosNikitopoulos/binpool_automation/tree/0c335d8d1b635305696e01a56f098e37f8cd34b6
+
+
+## Usage 
+
+After downaloding our dataset, run extract_deb_tar.py to extract debian files into binaries. you should see this structure. 
+
+<pre> CVE-ID/ │ ├── vulnerable/ │ ├── opt0/ │ │ └── debfiles/ │ │ └── bins/ │ ├── opt1/ │ │ └── debfiles/ │ │ └── bins/ │ ├── opt2/ │ │ └── debfiles/ │ │ └── bins/ │ └── opt3/ │ └── debfiles/ │ └── bins/ │ ├── patch/ │ ├── opt0/ │ │ └── debfiles/ │ │ └── bins/ │ ├── opt1/ │ │ └── debfiles/ │ │ └── bins/ │ ├── opt2/ │ │ └── debfiles/ │ │ └── bins/ │ └── opt3/ │ └── debfiles/ │ └── bins/ </pre>
+                          
+
+## Statistics
+
+All BinPool statistics is collected in .
+
+to extract the statistics you can run the following command. 
 
 ```
-python3 extract_deb_files.py "path to CVE directory"
+python3 extract_statistics.py
 ```
-after extraction, you should have a structure as an example below. 
-
-<p >
-<img src="images/extracted.png" alt="Project Logo" width="300"/>
-</p>
 
 ## Team
 
