@@ -1,33 +1,84 @@
 # BinPool
 
 <p align="center">
-<img src="images/binpool.png" alt="Project Logo" width="300"/>
+<img src="images/binpool-logo.png" alt="Project Logo" width="300"/>
 </p>
 
 ## Table of Contents
 - [Introduction](#introduction)
 - [Access](#Access)
 - [Features](#features)
+- [Dataset Structure](#Dataset Structure)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Statistics](#Statistics)
 - [Contributing](#contributing)
 - [License](#license)
 
 ## Introduction
 
-BinPool is a dataset consisting of vulnerable and patched binaries derived from historical Debian packages. BinPool can be used for vulnerability discovery tasks through various methods, including machine learning, fuzzing, and more. BinPool contains #number of binaries and #number of functions. It covers # of different CWE types. BinPool provides different features as follows.
-You can find the BinPool paper in . 
+This is a repository of paper BinPool: A Dataset of Vulnerabilities for Binary Security Analysis.
+BinPool is a dataset consisting of vulnerable and patched binaries derived from historical Debian packages compiled for four different optimization levels. BinPool can be used for vulnerability discovery tasks through various methods, including machine learning and static analysis. BinPool provides different features as follows. 
 
 ## Access
-You can download the dataset from [https://drive.google.com/drive/folders/107KtnXxHh1ZTVW7eWPbB5mo_S6rwIGLW?usp=sharing](https://zenodo.org/records/15178740?token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjYyNjNiOWM1LTU0MDUtNGZhNi04Y2JiLTljNmU1YTFlYTY1ZSIsImRhdGEiOnt9LCJyYW5kb20iOiI0YmUwNTVkODZlNzljOWMxN2JhNzA1OTVjMzcyMWMzYyJ9.SweHr1Ywaw-sKt8WEe17cZvgg53iLDqlRsW7mVLewqEAoQD1ZqJxkiCyUYU073acwED5HbN_yg8Kj5GAl4h3Bg). 
+You can download the dataset from [https://zenodo.org/records/15178740?token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjYyNjNiOWM1LTU0MDUtNGZhNi04Y2JiLTljNmU1YTFlYTY1ZSIsImRhdGEiOnt9LCJyYW5kb20iOiI0YmUwNTVkODZlNzljOWMxN2JhNzA1OTVjMzcyMWMzYyJ9.SweHr1Ywaw-sKt8WEe17cZvgg53iLDqlRsW7mVLewqEAoQD1ZqJxkiCyUYU073acwED5HbN_yg8Kj5GAl4h3Bg](https://zenodo.org/records/15178740?token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjYyNjNiOWM1LTU0MDUtNGZhNi04Y2JiLTljNmU1YTFlYTY1ZSIsImRhdGEiOnt9LCJyYW5kb20iOiI0YmUwNTVkODZlNzljOWMxN2JhNzA1OTVjMzcyMWMzYyJ9.SweHr1Ywaw-sKt8WEe17cZvgg53iLDqlRsW7mVLewqEAoQD1ZqJxkiCyUYU073acwED5HbN_yg8Kj5GAl4h3Bg). 
 
 ## Features
 
-- It Provides # number of unique CVEs and the corresponding CWE.
+- It Provides 603 number of unique CVEs and more than 80 CWEs.
 - For each CVE, it provides the fix version of the debian package. 
-- It provides the primary programming language (C, C++, java, python)
-- It provides function names exits in the patch and corresponding line numbers.
-- It provides memory offsets inside binary the involve in the patch
+- It covers different programming languages (C, C++, java, python, PHP)
+- It provides function and module names exits in the patch and the binary contains the function.
+
+
+
+| **Measurement**                  | **Value** |
+|----------------------------------|-----------|
+| Number of Unique CVEs            | 603       |
+| Number of CWEs                   | 89        |
+| Number of Debian files           | 824       |
+| Total number of Binaries         | 6144      |
+| Number of Debian Packages        | 162       |
+| Number of source modules         | 768       |
+| Number of source functions       | 910       |
+| Number of Binary functions       | 7280      |
+
+
+Below is a list of more frequent CWEs in Binpool.
+
+| **CWE**     | **CWE-Name**                                      | **Number** |
+|------------|---------------------------------------------------|------------|
+| CWE-787    | Out-of-bounds Write                                | 71         |
+| CWE-476    | NULL Pointer Dereference                           | 61         |
+| CWE-125    | Out-of-bounds Read                                 | 54         |
+| CWE-190    | CWE-190: Integer Overflow or Wraparound            | 34         |
+| CWE-20     | Improper Input Validation                          | 28         |
+| CWE-416    | Use After Free                                     | 27         |
+| CWE-400    | Uncontrolled Resource Consumption                  | 20         |
+
+
+
+## Dataset Structure
+
+After downloading the data, you should see this structure.
+
+```
+CVE-ID/
+│
+├── vulnerable/                # Directory containing vulnerable versions
+│   ├── opt0/                  # optimization level 0 for vulnerable version
+│   ├── opt1/                  # optimization level 1 for vulnerable version
+│   ├── opt2/                  # optimization level 2 for vulnerable version
+│   └── opt3/                  # optimization level 3 for vulnerable version
+│
+└── patch/                     # Directory containing patched versions
+    ├── opt0/                  # optimization level 0 for patched version
+    ├── opt1/                  # optimization level 1 for patched version
+    ├── opt2/                  # optimization level 2 for patched version
+    └── opt3/                  # optimization level 3 for patched version
+
+```
+
 
 ## Installation
 
@@ -158,27 +209,6 @@ quilt push -a
 ```
 and then build dependencies and the package using above commands. If this step goes through successfully, then the deb files are created. for dataset, please follow the below structure.
 
-# Dataset Structure
-
-the structure of the dataset should follow the below pattern. 
-
-```
-CVE-ID/
-│
-├── vulnerable/                # Directory containing vulnerable versions
-│   ├── opt0/                  # optimization level 0 for vulnerable version
-│   ├── opt1/                  # optimization level 1 for vulnerable version
-│   ├── opt2/                  # optimization level 2 for vulnerable version
-│   └── opt3/                  # optimization level 3 for vulnerable version
-│
-└── patch/                     # Directory containing patched versions
-    ├── opt0/                  # optimization level 0 for patched version
-    ├── opt1/                  # optimization level 1 for patched version
-    ├── opt2/                  # optimization level 2 for patched version
-    └── opt3/                  # optimization level 3 for patched version
-
-```
-
 # extract deb files
 
 After putting deb files into their directories based on the above structure, it is now time to extract deb files into binaries. In order to do that, run extract_deb_files.py with the directory to CVE-ID directory. 
@@ -192,26 +222,5 @@ after extraction, you should have a structure as an example below.
 <img src="images/extracted.png" alt="Project Logo" width="300"/>
 </p>
 
-# Trouble Shooting
-
-1. Please remember that building these packages is not an easy task. You may encounter so many technical issues. I recommend to always choose the higher version as a fix version. 
-
-2. quilt may sometimes have a bug. It sometimes gives error to apply the patch and in this case I just choose another option
-
-3. If you cannot build a package do not spend much time on it. Try to choose those that you can build faster. 
 
 
-
-# Tasks 
-
-I chose CVEs randomly from remaining CVEs and splited them betwen us. In order to find out what CVEs you have to build, please follow the step below. 
-
-load the file with your name in the tasks directory using the following code.
-
-```
-import joblib
-
-sima_tasks = joblib.load('tasks/sima.pkl') # to load CVEs sima has to compile
-```
-
-Please remember that in the file https://docs.google.com/spreadsheets/d/1qztIwB8xJ10H-2HLX15vI29Ze7yFDOrv7kDQ4JUi1g8/edit?usp=sharing, the green records are those that I have built. I exclude them from the rests and then assigned the remaining CVEs. Please mark the records in the sheet when you build it. 
