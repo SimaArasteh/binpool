@@ -12,8 +12,7 @@
 - [Installation](#installation)
 - [Usage](#usage)
 - [Statistics](#Statistics)
-- [Contributing](#contributing)
-- [License](#license)
+- [Team](#Team)
 
 ## Introduction
 
@@ -58,7 +57,7 @@ Below is a list of more frequent CWEs in Binpool.
 
 
 
-## Dataset Structure
+## Structure
 
 After downloading the data, you should see this structure.
 
@@ -222,5 +221,26 @@ after extraction, you should have a structure as an example below.
 <img src="images/extracted.png" alt="Project Logo" width="300"/>
 </p>
 
+## Team
 
+### Sima Arasteh
+**PhD Student/ University of Southern California**  
+
+### Georgios Nikitopoulos
+**PhD Student / Dartmouth College**  
+
+### Wei-Cheng Wu
+**PhD Student / Dartmouth College**  
+
+### Nicolaas Weideman
+**PhD Student / USC ISI** 
+
+### Aaron Portnoy
+**Hacker-in-Residence/ Dartmouth College** 
+ 
+### Mukund Raghothaman
+**Assistant Professor / University of Southern California**  
+
+### Christophe Hauser
+**Assistant Professor / Dartmouth College**  
 
