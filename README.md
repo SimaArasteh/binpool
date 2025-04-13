@@ -6,190 +6,169 @@
 
 ## Table of Contents
 - [Introduction](#introduction)
-- [Access](#Access)
+- [Access](#access)
 - [Features](#features)
-- [Structure](#Structure)
+- [Structure](#structure)
 - [Installation](#installation)
-- [Automation](#Automation)
+- [Automation](#automation)
 - [Usage](#usage)
-- [Statistics](#Statistics)
-- [Team](#Team)
+- [Statistics](#statistics)
+- [Team](#team)
 
 ## Introduction
 
-This is a repository of paper BinPool: A Dataset of Vulnerabilities for Binary Security Analysis.
-BinPool is a dataset consisting of vulnerable and patched binaries derived from historical Debian packages compiled for four different optimization levels. BinPool can be used for vulnerability discovery tasks through various methods, including machine learning and static analysis. BinPool provides different features as follows. 
+This repository hosts the paper *BinPool: A Dataset of Vulnerabilities for Binary Security Analysis*.  
+BinPool is a dataset consisting of vulnerable and patched binaries derived from historical Debian packages, compiled using four different optimization levels. It can be used for vulnerability discovery tasks through various methods, including machine learning and static analysis. BinPool provides the following features:
 
 ## Access
-You can download the dataset from [https://zenodo.org/records/15178740?token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjYyNjNiOWM1LTU0MDUtNGZhNi04Y2JiLTljNmU1YTFlYTY1ZSIsImRhdGEiOnt9LCJyYW5kb20iOiI0YmUwNTVkODZlNzljOWMxN2JhNzA1OTVjMzcyMWMzYyJ9.SweHr1Ywaw-sKt8WEe17cZvgg53iLDqlRsW7mVLewqEAoQD1ZqJxkiCyUYU073acwED5HbN_yg8Kj5GAl4h3Bg](https://zenodo.org/records/15178740?token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjYyNjNiOWM1LTU0MDUtNGZhNi04Y2JiLTljNmU1YTFlYTY1ZSIsImRhdGEiOnt9LCJyYW5kb20iOiI0YmUwNTVkODZlNzljOWMxN2JhNzA1OTVjMzcyMWMzYyJ9.SweHr1Ywaw-sKt8WEe17cZvgg53iLDqlRsW7mVLewqEAoQD1ZqJxkiCyUYU073acwED5HbN_yg8Kj5GAl4h3Bg). 
+
+You can download the dataset from [Zenodo](https://zenodo.org/records/15178740?token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjYyNjNiOWM1LTU0MDUtNGZhNi04Y2JiLTljNmU1YTFlYTY1ZSIsImRhdGEiOnt9LCJyYW5kb20iOiI0YmUwNTVkODZlNzljOWMxN2JhNzA1OTVjMzcyMWMzYyJ9.SweHr1Ywaw-sKt8WEe17cZvgg53iLDqlRsW7mVLewqEAoQD1ZqJxkiCyUYU073acwED5HbN_yg8Kj5GAl4h3Bg).
 
 ## Features
 
-- It Provides 603 number of unique CVEs and more than 80 CWEs.
-- For each CVE, it provides the fix version of the debian package. 
-- It covers different programming languages (C, C++, java, python, PHP)
-- It provides function and module names exits in the patch and the binary contains the function.
-
-
+- Provides 603 unique CVEs and more than 80 CWEs.
+- Includes the fix version of the corresponding Debian package for each CVE.
+- Covers various programming languages (C, C++, Java, Python, PHP).
+- Provides function and module names present in both patch and binary versions.
 
 | **Measurement**                  | **Value** |
 |----------------------------------|-----------|
 | Number of Unique CVEs            | 603       |
 | Number of CWEs                   | 89        |
-| Number of Debian files           | 824       |
-| Total number of Binaries         | 6144      |
+| Number of Debian Files           | 824       |
+| Total Number of Binaries         | 6144      |
 | Number of Debian Packages        | 162       |
-| Number of source modules         | 768       |
-| Number of source functions       | 910       |
-| Number of Binary functions       | 7280      |
+| Number of Source Modules         | 768       |
+| Number of Source Functions       | 910       |
+| Number of Binary Functions       | 7280      |
 
+Below is a list of the most frequent CWEs in BinPool:
 
-Below is a list of more frequent CWEs in Binpool.
-
-| **CWE**     | **CWE-Name**                                      | **Number** |
+| **CWE**     | **CWE Name**                                      | **Count**  |
 |------------|---------------------------------------------------|------------|
 | CWE-787    | Out-of-bounds Write                                | 71         |
 | CWE-476    | NULL Pointer Dereference                           | 61         |
 | CWE-125    | Out-of-bounds Read                                 | 54         |
-| CWE-190    | CWE-190: Integer Overflow or Wraparound            | 34         |
+| CWE-190    | Integer Overflow or Wraparound                     | 34         |
 | CWE-20     | Improper Input Validation                          | 28         |
 | CWE-416    | Use After Free                                     | 27         |
 | CWE-400    | Uncontrolled Resource Consumption                  | 20         |
 
-
-
 ## Structure
 
-After downloading the data, you should see this structure.
+After downloading the data, the structure will be as follows:
 
 ```
 CVE-ID/
 │
 ├── vulnerable/                # Directory containing vulnerable versions
-│   ├── opt0/                  # optimization level 0 for vulnerable version
-│   ├── opt1/                  # optimization level 1 for vulnerable version
-│   ├── opt2/                  # optimization level 2 for vulnerable version
-│   └── opt3/                  # optimization level 3 for vulnerable version
+│   ├── opt0/                  # Optimization level 0 for vulnerable version
+│   ├── opt1/                  # Optimization level 1 for vulnerable version
+│   ├── opt2/                  # Optimization level 2 for vulnerable version
+│   └── opt3/                  # Optimization level 3 for vulnerable version
 │
 └── patch/                     # Directory containing patched versions
-    ├── opt0/                  # optimization level 0 for patched version
-    ├── opt1/                  # optimization level 1 for patched version
-    ├── opt2/                  # optimization level 2 for patched version
-    └── opt3/                  # optimization level 3 for patched version
-
+    ├── opt0/                  # Optimization level 0 for patched version
+    ├── opt1/                  # Optimization level 1 for patched version
+    ├── opt2/                  # Optimization level 2 for patched version
+    └── opt3/                  # Optimization level 3 for patched version
 ```
-
 
 ## Installation
 
-In this Section, we explain the logic behind how we created the binpool dataset. 
+In this section, we explain the process behind how the BinPool dataset was created.
 
-Debian security tracker provides  the up to date CVEs in Debian packages in a json format.( https://security-tracker.debian.org/tracker/data/json ). For each CVE there is a package name and version that fix 
-the CVE. We collect all this data in https://docs.google.com/spreadsheets/d/1qztIwB8xJ10H-2HLX15vI29Ze7yFDOrv7kDQ4JUi1g8/edit?usp=sharing .
+The Debian Security Tracker provides up-to-date CVE information for Debian packages in JSON format: [https://security-tracker.debian.org/tracker/data/json](https://security-tracker.debian.org/tracker/data/json)  
+Each CVE entry includes the package name and the version that fixes it. All this data is compiled [here](https://docs.google.com/spreadsheets/d/1qztIwB8xJ10H-2HLX15vI29Ze7yFDOrv7kDQ4JUi1g8/edit?usp=sharing).
 
-We download the package source for each CVE by following the below steps.
+We download the package source for each CVE using the following steps:
 
-1. After finding the Debian package, visit the Debian snapshot site (https://snapshot.debian.org/). On the left sidebar, under the "Packages" section, select "Source Packages" and enter only the source name of the package (for example, for the package `tigervnc_1.7.0-2`, just type `tigervnc`). This will display all available versions of the package. Select the desired version, such as `1.7.0-2` in this case. Since we need to build both the vulnerable and patched versions, and compile binaries with different optimization levels, we will need to download the source files for this purpose.Under source files section, right click on ```package_version.dsc``` and copy the link address. We also provide you an autmated script to find this source link. 
+1. Visit [Debian Snapshot](https://snapshot.debian.org/), select "Source Packages", and search for the package name (e.g., `tigervnc`). Select the required version and copy the `.dsc` source file link under the "Source Files" section. We also provide an automated script to help find this source link.
 
+2. **Finding the correct Debian version for the environment setup is critical**. This is automated in our scripts. The correct Debian version ensures all package dependencies are properly installed.
 
-2. **The one important step is to find the right debian version to setup environment**. We provide this step automatically. Having a right debian version is neccessary to guarantee  the installation of debian dependencies. 
-
-3. You can also install and setup enviroment manually. You can install it using virtual machines but we prefer to install it using ```debootstrap```. debootstrap is a tool used to create a minimal Debian-based (or Ubuntu-based) system installation within a directory. It is typically used to bootstrap a new Debian system by downloading essential packages, installing them, and setting up the directory structure needed for a basic system. Follow the following commands. First install deboostrap. 
+3. You can manually set up the environment using a virtual machine or, preferably, using `debootstrap`:
 
 ```bash
 sudo apt-get update
 sudo apt-get install debootstrap
-sudo mkdir /mnt/debian # make a directory to install the debian inside it.
+sudo mkdir /mnt/debian
 ```
 
-Now install the debian using debootstrap. Imagine that we want to install debian 10 or (buster) in directory /mnt/debian10. 
+Now install Debian 10 (buster) inside the created directory:
 
 ```bash
 sudo debootstrap --arch amd64 buster /mnt/debian http://deb.debian.org/debian
 sudo chroot /mnt/debian
-
 ```
 
-chroot changes the apparent root directory for a process, isolating it from the rest of the system by making it operate within a specified directory as if it were the root (/).
+4. You are now inside the Debian chroot. Install necessary dependencies:
 
-4. You are now inside the debian you just installed. It is now time to install the debian package. Run the following commands. 
-
-```
+```bash
 apt-get update
 apt-get install -y --force-yes build-essential fakeroot devscripts packaging-dev
 ```
-Now make a directory for the vulnerable version of the package. 
 
-```
+5. Create and enter a directory for the vulnerable version:
+
+```bash
 mkdir vulnerable
 cd vulnerable
 ```
 
-Now download the source file you just obtained from the first step. Run the following command.
+6. Download the source using `dget`:
 
-```
-dget -u --insecure source_file_url
-```
-
-As an example, it can be like ```dget -u --insecure https://snapshot.debian.org/archive/debian-debug/20161230T030620Z/pool/main/t/tigervnc/tigervnc_1.7.0-2.dsc```.
-
-Now you have downloaded the package in directory vulnerable. **Inside every debian package, there is a directory called /debian/patches/. This directory contains all patches applied into this package. As an example for ```tigervnc_1.10.1%2Bdfsg-4```, you can see this list of patches. 
-
-
-<img src="images/tigervnc.png"  width="1000"/>
-
-If you open the series file, you will see the list of patches. The Debian community provides an awesome tool named ```quilt``` to apply or remove patches from source code. Quilt uses a file called series to track the list of patches and their order. The patches are applied one after another in the order they are listed in the ```debian/patches/series``` file. The command ```quilt push``` will apply the patch and ```quilt pop``` will remove the patch. In order to find out the applied patches run 
-
-```
-quilt applied
+```bash
+dget -u --insecure <source_file_url>
 ```
 
-To know more about quilt please refer to https://raphaelhertzog.com/2012/08/08/how-to-use-quilt-to-manage-patches-in-debian-packages/.
+Example:
 
-Then you can remove the patch that fix the CVE by using the following command.
-
-```
-quilt pop CVE-2014-8240-849479.patch
-```
-You can also revert all patches by using 
-
-```
-quilt pop -a
+```bash
+dget -u --insecure https://snapshot.debian.org/archive/debian-debug/20161230T030620Z/pool/main/t/tigervnc/tigervnc_1.7.0-2.dsc
 ```
 
-Now it is time to build package dependencies. Thanks to debian community, you can build all dependencies by using following command.It will use debian/rules to build the package.
+Inside each Debian package, there is a `/debian/patches/` directory. It contains all applied patches. For example, in `tigervnc_1.10.1+dfsg-4`, you'll find:
 
+<img src="images/tigervnc.png" width="1000"/>
+
+The file `series` lists all patches. Use the tool `quilt` to manage patches:
+
+```bash
+quilt applied       # shows applied patches
+quilt pop <patch>   # remove specific patch
+quilt pop -a        # remove all patches
 ```
+
+More on `quilt`: [https://raphaelhertzog.com/2012/08/08/how-to-use-quilt-to-manage-patches-in-debian-packages/](https://raphaelhertzog.com/2012/08/08/how-to-use-quilt-to-manage-patches-in-debian-packages/)
+
+7. Build package dependencies:
+
+```bash
 apt build-dep .
 ```
-It is neccessary that this phase should be successfully done.  
 
-You can now install the package for different optimization levels. We build the packages with debug information(dwarf).
+8. Build the package with debug info and various optimization levels:
 
-```
-#optimization level 0
+```bash
+# Optimization level 0
 yes '' | DEB_BUILD_OPTIONS='nostrip noopt debug' dpkg-buildpackage -b -uc -us
-```
 
-```
-#optimization level 1
+# Optimization level 1
 export CFLAGS="-O1"
 export CXXFLAGS="-O1"
 export FFLAGS="-O1"
 export DEB_BUILD_OPTIONS="nostrip debug"
 dpkg-buildpackage -b -uc -us
-```
-```
-#optimization level 2
+
+# Optimization level 2
 export CFLAGS="-O2"
 export CXXFLAGS="-O2"
 export FFLAGS="-O2"
 export DEB_BUILD_OPTIONS="nostrip debug"
 dpkg-buildpackage -b -uc -us
-```
 
-```
-#optimization level 3
+# Optimization level 3
 export CFLAGS="-O3"
 export CXXFLAGS="-O3"
 export FFLAGS="-O3"
@@ -197,38 +176,29 @@ export DEB_BUILD_OPTIONS="nostrip debug"
 dpkg-buildpackage -b -uc -us
 ```
 
-For patch version, just apply the patch using following command. 
+For the patched version, apply all patches:
 
-```
-quilt push file.patch
-```
-to apply all patches run. 
-
-```
+```bash
 quilt push -a
 ```
-and then build dependencies and the package using above commands. If this step goes through successfully, then the deb files are created. 
 
-
+Then rebuild the package with the same steps.
 
 ## Automation
 
-We automated all the above steps in binpool_automation. 
+All steps above are automated in [binpool_automation](https://github.com/GiorgosNikitopoulos/binpool_automation/tree/0c335d8d1b635305696e01a56f098e37f8cd34b6).
 
-for more details and understand how to run the automation proccess, we refer the reader to https://github.com/GiorgosNikitopoulos/binpool_automation/tree/0c335d8d1b635305696e01a56f098e37f8cd34b6
+## Usage
 
-
-## Usage 
-
-After downaloding our dataset, run extract_deb_tar.py to extract debian files into binaries. you should see this structure. 
+After downloading the dataset, run `extract_deb_tar.py` to extract Debian files into binaries. The resulting structure should look like this:
 
 ```
 CVE-ID/
 │
 ├── vulnerable/                
 │   ├── opt0/                  
-│   │   └── debfiles/          # Extracted Debian package files
-│   │       └── bins/          # Extracted binaries
+│   │   └── debfiles/          
+│   │       └── bins/          
 │   ├── opt1/
 │   │   └── debfiles/
 │   │       └── bins/
@@ -239,7 +209,7 @@ CVE-ID/
 │       └── debfiles/
 │           └── bins/
 │
-└── patch/                     # Directory containing patched versions
+└── patch/
     ├── opt0/
     │   └── debfiles/
     │       └── bins/
@@ -253,38 +223,36 @@ CVE-ID/
         └── debfiles/
             └── bins/
 ```
-                          
 
 ## Statistics
 
-All BinPool statistics is collected in .
+All BinPool statistics are collected in the repository.
 
-to extract the statistics you can run the following command. 
+To extract the statistics, run:
 
-```
+```bash
 python3 extract_statistics.py
 ```
 
 ## Team
 
-### Sima Arasteh
-**PhD Student/ University of Southern California**  
+### Sima Arasteh  
+**PhD Student / University of Southern California**
 
-### Georgios Nikitopoulos
-**PhD Student / Dartmouth College**  
+### Georgios Nikitopoulos  
+**PhD Student / Dartmouth College**
 
-### Wei-Cheng Wu
-**PhD Student / Dartmouth College**  
+### Wei-Cheng Wu  
+**PhD Student / Dartmouth College**
 
-### Nicolaas Weideman
-**PhD Student / USC ISI** 
+### Nicolaas Weideman  
+**PhD Student / USC ISI**
 
-### Aaron Portnoy
-**Hacker-in-Residence/ Dartmouth College** 
- 
-### Mukund Raghothaman
-**Assistant Professor / University of Southern California**  
+### Aaron Portnoy  
+**Hacker-in-Residence / Dartmouth College**
 
-### Christophe Hauser
-**Assistant Professor / Dartmouth College**  
+### Mukund Raghothaman  
+**Assistant Professor / University of Southern California**
 
+### Christophe Hauser  
+**Assistant Professor / Dartmouth College**
