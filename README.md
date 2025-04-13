@@ -8,7 +8,7 @@
 - [Introduction](#introduction)
 - [Access](#Access)
 - [Features](#features)
-- [Dataset Structure](#Dataset Structure)
+- [DatasetStructure](#Dataset Structure)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Statistics](#Statistics)
