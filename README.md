@@ -222,7 +222,36 @@ for more details and understand how to run the automation proccess, we refer the
 
 After downaloding our dataset, run extract_deb_tar.py to extract debian files into binaries. you should see this structure. 
 
-<pre> CVE-ID/ │ ├── vulnerable/ │ ├── opt0/ │ │ └── debfiles/ │ │ └── bins/ │ ├── opt1/ │ │ └── debfiles/ │ │ └── bins/ │ ├── opt2/ │ │ └── debfiles/ │ │ └── bins/ │ └── opt3/ │ └── debfiles/ │ └── bins/ │ ├── patch/ │ ├── opt0/ │ │ └── debfiles/ │ │ └── bins/ │ ├── opt1/ │ │ └── debfiles/ │ │ └── bins/ │ ├── opt2/ │ │ └── debfiles/ │ │ └── bins/ │ └── opt3/ │ └── debfiles/ │ └── bins/ </pre>
+CVE-ID/
+│
+├── vulnerable/                
+│   ├── opt0/                  
+│   │   └── debfiles/          # Extracted Debian package files
+│   │       └── bins/          # Extracted binaries
+│   ├── opt1/
+│   │   └── debfiles/
+│   │       └── bins/
+│   ├── opt2/
+│   │   └── debfiles/
+│   │       └── bins/
+│   └── opt3/
+│       └── debfiles/
+│           └── bins/
+│
+└── patch/                     # Directory containing patched versions
+    ├── opt0/
+    │   └── debfiles/
+    │       └── bins/
+    ├── opt1/
+    │   └── debfiles/
+    │       └── bins/
+    ├── opt2/
+    │   └── debfiles/
+    │       └── bins/
+    └── opt3/
+        └── debfiles/
+            └── bins/
+
                           
 
 ## Statistics
