@@ -79,7 +79,7 @@ CVE-ID/
 In this section, we explain the process behind how the BinPool dataset was created.
 
 The Debian Security Tracker provides up-to-date CVE information for Debian packages in JSON format: [https://security-tracker.debian.org/tracker/data/json](https://security-tracker.debian.org/tracker/data/json)  
-Each CVE entry includes the package name and the version that fixes it. All this data is compiled [here](https://docs.google.com/spreadsheets/d/1qztIwB8xJ10H-2HLX15vI29Ze7yFDOrv7kDQ4JUi1g8/edit?usp=sharing).
+Each CVE entry includes the package name and the version that fixes it. All this data is compiled [here](https://docs.google.com/spreadsheets/d/1qztIwB8xJ10H-2HLX15vI29Ze7yFDOrv7kDQ4JUi1g8/edit?usp=sharing). The full package list of Debian can be acceccable from https://docs.google.com/spreadsheets/d/1QKJ6mVC-G2qrCmaN2Z1MxKqO4598YOuyZPcuIywykik/edit?gid=477866570#gid=477866570
 
 We download the package source for each CVE using the following steps:
 
@@ -236,23 +236,10 @@ python3 extract_statistics.py
 
 ## Team
 
-### Sima Arasteh  
-**PhD Student / University of Southern California**
-
-### Georgios Nikitopoulos  
-**PhD Student / Dartmouth College**
-
-### Wei-Cheng Wu  
-**PhD Student / Dartmouth College**
-
-### Nicolaas Weideman  
-**PhD Student / USC ISI**
-
-### Aaron Portnoy  
-**Hacker-in-Residence / Dartmouth College**
-
-### Mukund Raghothaman  
-**Assistant Professor / University of Southern California**
-
-### Christophe Hauser  
-**Assistant Professor / Dartmouth College**
+**Sima Arasteh** – PhD Student, University of Southern California  
+**Georgios Nikitopoulos** – PhD Student, Dartmouth College  
+**Wei-Cheng Wu** – PhD Student, Dartmouth College  
+**Nicolaas Weideman** – PhD Student, USC ISI  
+**Aaron Portnoy** – Hacker-in-Residence, Dartmouth College  
+**Mukund Raghothaman** – Assistant Professor, University of Southern California  
+**Christophe Hauser** – Assistant Professor, Dartmouth College  
