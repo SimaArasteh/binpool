@@ -191,7 +191,7 @@ Then rebuild the package with the same steps.
 
 ## Automation
 
-All steps above are automated in [binpool_automation](https://github.com/GiorgosNikitopoulos/binpool_automation/tree/0c335d8d1b635305696e01a56f098e37f8cd34b6).
+All steps above are automated in [binpool_automation](https://github.com/GiorgosNikitopoulos/binpool_automation).
 
 ## Usage
 
