@@ -21,15 +21,14 @@ This repository hosts the paper *BinPool: A Dataset of Vulnerabilities for Binar
 BinPool is a dataset consisting of vulnerable and patched binaries derived from historical Debian packages, compiled using four different optimization levels. It can be used for vulnerability discovery tasks through various methods, including machine learning and static analysis. If you want to get familiar with BinPool please watch this video. 
 
 🎥 **Learn more about BinPool by watching our introduction video:**  
-
 [![Watch the video](https://img.youtube.com/vi/5Iry-2FybP0/0.jpg)](https://youtu.be/5Iry-2FybP0?si=8AwZuvgp1gRKVnd9)
-
 
 ## Access
 
 You can download the dataset from [Zenodo](https://zenodo.org/records/15178740?token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjYyNjNiOWM1LTU0MDUtNGZhNi04Y2JiLTljNmU1YTFlYTY1ZSIsImRhdGEiOnt9LCJyYW5kb20iOiI0YmUwNTVkODZlNzljOWMxN2JhNzA1OTVjMzcyMWMzYyJ9.SweHr1Ywaw-sKt8WEe17cZvgg53iLDqlRsW7mVLewqEAoQD1ZqJxkiCyUYU073acwED5HbN_yg8Kj5GAl4h3Bg).
 
 ## Features
+BinPool provides the following features:
 BinPool provides the following features:
 - Provides 603 unique CVEs and more than 80 CWEs.
 - Includes the fix version of the corresponding Debian package for each CVE.
