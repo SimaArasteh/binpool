@@ -10,7 +10,8 @@ from collections import defaultdict
 import pandas as pd
 import requests
 import subprocess
-
+from elftools.elf.elffile import ELFFile
+import elftools
 def run_dget_in_directory(dsc_url, download_dir):
 
 
@@ -321,8 +322,6 @@ def parse_patch_file(patch_file):
             jdx+=1
 
     return files_info, lines
-    
-
 
 
 def return_package_name(cve_ids):
@@ -341,8 +340,46 @@ def return_package_name(cve_ids):
     return cve_package, cve_cwe
 
 
+def extract_debug_info(binpool_path, cve, module_path):
+    bins = set()
+    for root, _, files in os.walk(binpool_path):
+        for file in files:
+            full_path = os.path.join(root, file)
+            #breakpoint()
+            if cve in full_path and  'vulnerable/' in full_path and 'opt0/' in full_path and 'debfiles/output_directory/bins/' in full_path:
+                #breakpoint()
+                if is_valid_elf(full_path):
+                    # Skip non-ELF files
+                    if find_corresponding_binary(full_path, module_path):
+                        bins.add(full_path)
+    return list(bins)
+def find_corresponding_binary(binary , module_path):
+    # this function checks if the binary contains the compilation unit map to module path
+    with open(binary, 'rb') as file:
+        elffile = ELFFile(file)
+        if not elffile.has_dwarf_info():
+            print('  file has no DWARF info')
+            return 
+        else:
+            debug_info = elffile.get_dwarf_info()
+            if debug_info is not None:
+                for CU in debug_info.iter_CUs(): 
+                    cu_die = CU.get_top_DIE()
+                    
+                    for att_cu in cu_die.attributes:
+                        if att_cu == 'DW_AT_name':
+                            cu_name = cu_die.attributes[att_cu].value.decode("utf-8")
+                            if cu_name.split("/")[-1] == module_path.split("/")[-1]:
+                                return True
+    return False
 
-
+def is_valid_elf(file_path):
+    try:
+        with open(file_path, 'rb') as f:
+            ELFFile(f)  # Just trying to parse; if invalid, will raise exception
+        return True
+    except Exception:
+        return False
 
 def main():
     
@@ -364,53 +401,30 @@ def main():
     source_funcs = joblib.load("metadata/source_funcs.pkl")
     cve_cwe = joblib.load("metadata/map_cwe_pack.pkl")
     cwes = []
-    for cve in source_funcs:
+    binpool_info = {}
+    for cve in tqdm(source_funcs):
         print(cve)
+        
+        #print(cve_cwe[cve])
         cwes= cwes+cve_cwe[cve]
-        fs = []
-        fis = []
+        file_func = {}
+        bins = []
         for file, func in source_funcs[cve]:
-            print(file)
+            #print(file)
             if func is not None:
-                functions.add(func)
-                files.add(file)
-                fs.append(func)
-            if file.endswith(".c") or file.endswith(".cpp"):
-                fis.append(True)
-
-        if not len(fs) and any(fis):
-            count+=1
-        print("++++++++++++++++++++")
-    print(len(functions)+count)
-    print(len(files))
-    unique_cwes = set(cwes)
-    list_cve_cwe = []
-    for cwe in unique_cwes:
-        print(cwe)
-        print(cwes.count(cwe))
-        list_cve_cwe.append((cwe, cwes.count(cwe)))
-        print("*************")
-    sorted_list = sorted(list_cve_cwe, key=lambda x: x[1])
-    print(sorted_list[-10:-1])
-    '''df = pd.read_csv('binpool3.csv')
-    df_unique = df.drop_duplicates(subset='cve', keep='first')
-
-    # Now it's safe to set index and convert
-    cve_dict = df_unique.set_index('cve')[['pack_name', 'fix_version']].to_dict(orient='index')
-    main_href = "https://snapshot.debian.org/package"
-    for cve in source_funcs:
-        if source_funcs[cve][0] is None:
-            pass
-            if cve in list(cve_dict.keys()):
-                pack_name = cve_dict[cve]['pack_name']
-                fix_version = cve_dict[cve]['fix_version']
-                full_url = main_href+"/"+pack_name+"/"+fix_version
-                print(full_url)
-                destinsation = "/home/sima/binpool/binpool_artifact/"+cve
-                first_dsc = get_first_dsc_link(full_url)
-                run_dget_in_directory(first_dsc, destinsation)'''
+                #print(func)
+                file_func[file] = func
                 
+            if file.endswith(".c") or file.endswith(".cpp"):
+                
+                corresponding_bins = extract_debug_info(dataset_path, cve, file)
+                bins = corresponding_bins
+        
+        binpool_info[cve] = {'cwes': cwes, 'file_func':file_func, 'binaries':bins}
 
+                
+    with open('binpool_info.json', 'w') as f:
+        json.dump(binpool_info, f, indent=4)
        
 
    
