@@ -235,8 +235,9 @@ All BinPool statistics are collected in the repository.
 To extract the statistics, run:
 
 ```bash
-python3 extract_statistics.py
+python3 extract_statistics.py 
 ```
+[here is a link to binpool_info.json.](https://github.com/SimaArasteh/binpool/blob/main/binpool_info.json) 
 
 ## Team
 
