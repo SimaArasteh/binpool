@@ -406,7 +406,7 @@ def main():
         print(cve)
         
         #print(cve_cwe[cve])
-        cwes= cwes+cve_cwe[cve]
+        #cwes= cve_cwe[cve]
         file_func = {}
         bins = []
         for file, func in source_funcs[cve]:
@@ -420,7 +420,7 @@ def main():
                 corresponding_bins = extract_debug_info(dataset_path, cve, file)
                 bins = corresponding_bins
         
-        binpool_info[cve] = {'cwes': cwes, 'file_func':file_func, 'binaries':bins}
+        binpool_info[cve] = {'cwes': cve_cwe[cve], 'file_func':file_func, 'binaries':bins}
 
                 
     with open('binpool_info.json', 'w') as f:
